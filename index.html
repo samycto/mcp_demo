@@ -1,0 +1,1052 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Enterprise MCP Explorer · Workato</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,200;0,300;0,400;0,500;0,600;0,700;1,300;1,400&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --bg:#111010;--card:#1A1717;--surface:#282525;--surface2:#1e1c1c;
+  --teal:#67EADD;--teal2:#22DBC8;
+  --teal-dim:rgba(103,234,221,0.09);--teal-border:rgba(103,234,221,0.28);--teal-border2:rgba(103,234,221,0.14);
+  --text:#fff;--sec:rgba(255,255,255,0.85);--ter:rgba(255,255,255,0.65);--muted:rgba(255,255,255,0.50);
+  --green:#10B981;--amber:#F59E0B;--red:#EF4444;
+  --mono:"SF Mono","Monaco","Cascadia Code",monospace;
+}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);font-family:'Poppins',sans-serif;font-weight:300;color:var(--text);min-height:100vh;display:flex;flex-direction:column;}
+
+.nav{position:sticky;top:0;z-index:100;background:rgba(17,16,16,0.96);backdrop-filter:blur(16px);border-bottom:1px solid var(--teal-border2);padding:.875rem 2rem;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
+.nav-logo{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:500;color:var(--teal);text-decoration:none;}
+.nav-lmark{width:26px;height:26px;background:var(--teal);border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:var(--bg);}
+.nav-center{font-size:12px;color:var(--muted);}
+.nav-center span{color:var(--teal);font-weight:500;}
+.nav-right{display:flex;align-items:center;gap:1rem;}
+.nav-cta{background:var(--teal);color:var(--bg);border:none;border-radius:20px;padding:.45rem 1.25rem;font-family:'Poppins',sans-serif;font-size:12px;font-weight:600;cursor:pointer;text-decoration:none;transition:all .2s;white-space:nowrap;}
+.nav-cta:hover{background:var(--teal2);}
+.nav-back{font-size:12px;color:var(--muted);text-decoration:none;transition:color .2s;}
+.nav-back:hover{color:var(--teal);}
+
+.prog-wrap{height:2px;background:var(--surface);flex-shrink:0;}
+.prog-fill{height:100%;background:var(--teal);transition:width .4s ease;}
+
+.step-bar{display:flex;align-items:center;justify-content:center;gap:1rem;padding:.875rem 2rem;border-bottom:1px solid var(--teal-border2);flex-shrink:0;flex-wrap:wrap;}
+.step-item{display:flex;align-items:center;gap:.5rem;}
+.step-dot{width:22px;height:22px;border-radius:50%;border:1px solid var(--teal-border2);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600;color:var(--muted);transition:all .3s;flex-shrink:0;}
+.step-dot.active{background:var(--teal);border-color:var(--teal);color:var(--bg);}
+.step-dot.done{background:var(--teal-dim);border-color:var(--teal);color:var(--teal);}
+.step-label{font-size:11px;color:var(--muted);transition:color .3s;}
+.step-label.active{color:var(--teal);font-weight:500;}
+.step-label.done{color:var(--ter);}
+.step-sep{width:24px;height:1px;background:var(--teal-border2);}
+
+.screens{flex:1;}
+.screen{display:none;padding:2.5rem 2rem;max-width:1000px;margin:0 auto;animation:fadeUp .3s ease;}
+.screen.active{display:block;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+.pre{font-size:10px;font-weight:500;letter-spacing:4px;text-transform:uppercase;color:var(--teal);margin-bottom:.75rem;}
+.h1{font-size:30px;font-weight:300;line-height:1.2;margin-bottom:.5rem;}
+.h1 em{color:var(--teal2);font-style:italic;}
+.sub{font-size:13px;color:var(--muted);line-height:1.7;margin-bottom:2rem;max-width:640px;}
+.eyebrow{font-size:10px;font-weight:500;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:.75rem;}
+
+.ai-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:2rem;}
+.ai-card{background:var(--card);border:1px solid var(--teal-border2);border-radius:10px;padding:.875rem .75rem;cursor:pointer;text-align:center;transition:all .2s;}
+.ai-card:hover{border-color:var(--teal);background:var(--surface);}
+.ai-card.sel{border-color:var(--teal);background:var(--teal-dim);}
+.ai-card svg{display:block;margin:0 auto 6px;}
+.ai-name{font-size:12px;font-weight:500;color:var(--text);display:block;}
+.ai-maker{font-size:10px;color:var(--muted);display:block;}
+
+.sys-categories{display:grid;grid-template-columns:1fr 1fr;gap:1rem 2.5rem;margin-bottom:.5rem;}
+.sys-cat{margin-bottom:.875rem;}
+.sys-cat-label{font-size:9px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--teal);margin-bottom:6px;}
+.sys-chips{display:flex;flex-wrap:wrap;gap:6px;}
+.sys-chip{background:var(--card);border:1px solid var(--teal-border2);border-radius:20px;padding:5px 12px;font-size:11px;color:var(--sec);cursor:pointer;transition:all .2s;white-space:nowrap;}
+.sys-chip:hover{border-color:var(--teal);background:var(--surface);}
+.sys-chip.sel{border-color:var(--teal);background:var(--teal-dim);color:var(--teal);}
+.hint{font-size:11px;color:var(--amber);margin-top:.5rem;display:none;}
+.sel-status{font-size:12px;color:var(--muted);margin-top:.75rem;}
+.sel-status span{color:var(--teal);font-weight:500;}
+
+.preview-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:1.5rem;}
+.preview-card{background:var(--card);border:1px solid var(--teal-border2);border-left:3px solid var(--teal);border-radius:8px;padding:.875rem 1rem;}
+.prev-name{font-size:12px;font-weight:600;color:var(--teal);margin-bottom:4px;}
+.prev-desc{font-size:13px;color:var(--sec);line-height:1.65;}
+.prev-tools{display:flex;flex-wrap:wrap;gap:4px;margin-top:.375rem;}
+.prev-tool{font-family:var(--mono);font-size:9px;background:var(--surface);border:1px solid var(--teal-border2);border-radius:4px;padding:2px 6px;color:var(--muted);}
+.identity-badge{background:var(--teal-dim);border:1px solid var(--teal-border);border-radius:10px;padding:1rem 1.25rem;font-size:14px;color:var(--sec);line-height:1.7;}
+.identity-badge strong{color:var(--teal);}
+.nudge-block{background:rgba(245,158,11,0.07);border:1px solid rgba(245,158,11,0.22);border-radius:10px;padding:1rem 1.25rem;margin-bottom:1.5rem;display:flex;align-items:flex-start;gap:10px;}
+.nudge-icon{color:var(--amber);font-size:16px;flex-shrink:0;margin-top:1px;}
+.nudge-text{font-size:12px;color:var(--sec);line-height:1.6;}
+.nudge-text strong{color:var(--amber);}
+.nudge-chips{display:flex;flex-wrap:wrap;gap:5px;margin-top:.5rem;}
+.nudge-chip{background:var(--card);border:1px solid rgba(245,158,11,0.3);border-radius:20px;padding:3px 10px;font-size:11px;color:var(--amber);cursor:pointer;transition:all .2s;}
+.nudge-chip:hover{background:rgba(245,158,11,0.1);}
+
+/* SCREEN 3 */
+.context-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:1.5rem;}
+.context-banner{background:var(--surface2);border:1px solid var(--teal-border2);border-radius:10px;padding:1rem 1.25rem;display:flex;gap:12px;align-items:flex-start;transition:opacity .4s ease;}
+.cb-num{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;margin-top:1px;}
+.cb-num.red{background:rgba(239,68,68,0.15);border:1px solid rgba(239,68,68,0.3);color:var(--red);}
+.cb-num.teal{background:var(--teal-dim);border:1px solid var(--teal-border);color:var(--teal);}
+.cb-label{font-size:10px;font-weight:600;letter-spacing:2px;text-transform:uppercase;margin-bottom:3px;}
+.cb-label.red{color:var(--red);}
+.cb-label.teal{color:var(--teal);}
+.cb-text{font-size:13px;color:var(--sec);line-height:1.6;}
+
+.tool-pill{display:inline-flex;align-items:center;gap:7px;background:var(--surface);border:1px solid var(--teal-border2);border-radius:20px;padding:5px 14px;font-size:11px;color:var(--sec);margin-bottom:1rem;}
+.tool-pill-dot{width:7px;height:7px;border-radius:50%;}
+
+.chat-shell{background:#F5F0E8;border-radius:12px;overflow:hidden;box-shadow:0 8px 32px rgba(0,0,0,.4);margin-bottom:12px;}
+.chat-top{background:#F5F0E8;padding:.625rem 1rem;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(0,0,0,0.08);}
+.chat-body{padding:16px 18px;min-height:280px;}
+.chat-ai-badge{display:flex;align-items:center;gap:8px;}
+.chat-ai-icon{width:24px;height:24px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;}
+.chat-ai-name{font-size:13px;font-weight:500;color:#111;margin-left:8px;}
+.chat-model-badge{font-size:11px;color:rgba(0,0,0,0.4);font-weight:300;}
+
+.msg-user{background:#E8E2D8;border-radius:10px;padding:11px 15px;font-size:13px;color:#333;margin-bottom:14px;line-height:1.5;max-width:90%;margin-left:auto;}
+.mcp-layer-chat{background:#EDE8E0;border:1px solid rgba(0,0,0,0.08);border-radius:8px;padding:.625rem .875rem;margin-bottom:.625rem;}
+.mcp-path-chat{display:flex;align-items:center;gap:6px;margin-bottom:.5rem;flex-wrap:wrap;}
+.mcp-node-chat{font-size:11px;font-weight:600;color:#1a1a2e;background:#e0dbd3;border-radius:4px;padding:2px 8px;}
+.mcp-node-chat.wk{background:#d0f0ec;color:#0f766e;}
+.mcp-node-chat.bad{background:#fef3c7;color:#92400e;}
+.mcp-arrow-chat{font-size:9px;color:#bbb;}
+
+.tc-warn{display:flex;align-items:flex-start;gap:8px;background:#fffbeb;border:1px solid #fcd34d;border-radius:6px;padding:7px 10px;font-family:var(--mono);font-size:10px;margin-bottom:6px;line-height:1.6;}
+
+.tc-warn-icon{flex-shrink:0;font-size:12px;margin-top:1px;}
+.tc-warn-fn{color:#92400e;font-weight:600;}
+.tc-warn-reason{color:#b45309;font-style:italic;margin-left:4px;}
+
+.tc-good{display:flex;align-items:flex-start;gap:7px;background:#f0fdf4;border:1px solid #86efac;border-radius:5px;padding:5px 10px;font-family:var(--mono);font-size:10px;margin-bottom:5px;line-height:1.5;}
+.tc-good-dot{width:6px;height:6px;border-radius:50%;background:var(--green);flex-shrink:0;margin-top:3px;}
+.tc-good-text{color:#166534;}
+.tc-good-ok{color:var(--green);font-weight:700;margin-left:auto;flex-shrink:0;}
+
+.msg-ai-chat{background:transparent;padding:.5rem 0;font-size:13.5px;color:#333;line-height:1.75;margin-top:.5rem;}
+.msg-ai-chat p{margin-bottom:.5rem;}
+.msg-ai-chat p:last-child{margin-bottom:0;}
+.msg-ai-chat strong{font-weight:600;}
+
+.swap-cta-inline{background:linear-gradient(135deg,#e6faf8 0%,#f0fdf4 100%);border:1.5px solid #22DBC8;border-radius:8px;padding:.75rem 1rem;margin-top:.75rem;display:flex;align-items:center;justify-content:space-between;gap:.75rem;}
+.swap-cta-text{font-size:12px;color:#0f766e;font-weight:500;line-height:1.4;}
+.swap-cta-text span{display:block;font-size:10px;color:#6b7280;font-weight:400;margin-top:2px;}
+.swap-btn-inline{background:#22DBC8;color:#111;border:none;border-radius:20px;padding:.45rem 1.125rem;font-family:'Poppins',sans-serif;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap;transition:all .2s;flex-shrink:0;}
+.swap-btn-inline:hover{background:#67EADD;}
+
+.chat-input-bar{background:#F5F0E8;border-top:1px solid rgba(0,0,0,0.08);padding:9px 14px;display:flex;align-items:center;justify-content:space-between;}
+.chat-input-text{font-size:12px;color:rgba(0,0,0,0.3);}
+.chat-send-btn{width:26px;height:26px;background:#1A1717;border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+
+.result-card{border-radius:8px;padding:.875rem 1rem;display:flex;gap:10px;align-items:flex-start;margin-bottom:1rem;}
+.result-bad{background:rgba(239,68,68,.07);border:1px solid rgba(239,68,68,.25);}
+.result-good{background:var(--teal-dim);border:1px solid var(--teal-border);}
+.res-icon{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0;margin-top:1px;}
+.res-icon.bad{background:var(--red);color:#fff;}
+.res-icon.good{background:var(--teal);color:var(--bg);}
+.res-title{font-size:13px;font-weight:600;color:var(--text);margin-bottom:4px;}
+.res-desc{font-size:13px;color:var(--sec);line-height:1.65;}
+
+.risk-header{display:flex;align-items:center;gap:.625rem;margin:1.25rem 0 .75rem;}
+.risk-label{font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--red);}
+.risk-sep{font-size:10px;color:var(--muted);}
+.risk-sub{font-size:10px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;}
+.risk-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:1.5rem;}
+.risk-card{background:var(--card);border:1px solid rgba(239,68,68,0.2);border-left:3px solid var(--red);border-radius:8px;padding:.875rem 1rem;}
+.risk-card-label{font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--red);margin-bottom:.5rem;line-height:1.4;}
+.risk-card-desc{font-size:12px;color:var(--ter);line-height:1.65;}
+
+.eg-grid-race{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:.875rem;}
+.eg-card-sm{background:var(--card);border:1px solid var(--teal-border2);border-left:3px solid var(--teal);border-radius:8px;padding:.875rem 1rem;}
+.eg-label-sm{font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--teal);margin-bottom:.375rem;}
+.eg-desc-sm{font-size:12px;color:var(--ter);line-height:1.6;}
+
+.server-selected-summary{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:1.5rem;}
+.srv-sum-badge{background:var(--teal-dim);border:1px solid var(--teal-border);border-radius:20px;padding:4px 12px;font-size:11px;font-weight:500;color:var(--teal);}
+.closing-card{background:var(--card);border:1px solid var(--teal-border);border-radius:12px;padding:1.5rem;margin-bottom:1.5rem;}
+.closing-pre{font-size:10px;font-weight:500;letter-spacing:3px;text-transform:uppercase;color:var(--teal);margin-bottom:.5rem;}
+.closing-title{font-size:18px;font-weight:400;color:var(--text);margin-bottom:.875rem;line-height:1.3;}
+.closing-steps{display:flex;flex-direction:column;gap:10px;margin-bottom:1.25rem;}
+.closing-step{display:flex;align-items:flex-start;gap:10px;}
+.step-num{width:22px;height:22px;border-radius:50%;background:var(--teal-dim);border:1px solid var(--teal-border);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600;color:var(--teal);flex-shrink:0;margin-top:1px;}
+.step-text{font-size:13px;color:var(--sec);line-height:1.65;}
+.step-text strong{color:var(--text);font-weight:500;}
+.btn-primary{background:var(--teal);color:var(--bg);border:none;border-radius:24px;padding:.75rem 2rem;font-family:'Poppins',sans-serif;font-size:13px;font-weight:600;cursor:pointer;text-decoration:none;display:block;text-align:center;transition:all .2s;margin-bottom:.5rem;}
+.btn-primary:hover{background:var(--teal2);}
+.btn-secondary{background:transparent;color:var(--teal);border:1px solid var(--teal-border);border-radius:24px;padding:.625rem 1.5rem;font-family:'Poppins',sans-serif;font-size:12px;cursor:pointer;text-decoration:none;display:block;text-align:center;transition:all .2s;}
+.btn-secondary:hover{background:var(--teal-dim);}
+
+.footer-nav{display:flex;justify-content:space-between;align-items:center;padding:1.125rem 2rem;border-top:1px solid var(--teal-border2);background:var(--card);flex-shrink:0;}
+.ftr-mid{font-size:11px;color:var(--muted);}
+.btn-ghost{background:transparent;color:var(--muted);border:1px solid rgba(255,255,255,.15);border-radius:24px;padding:.55rem 1.25rem;font-family:'Poppins',sans-serif;font-size:12px;cursor:pointer;transition:all .2s;}
+.btn-ghost:hover{border-color:var(--teal-border);color:var(--text);}
+.btn-next{background:var(--teal);color:var(--bg);border:none;border-radius:24px;padding:.6rem 1.75rem;font-family:'Poppins',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:all .2s;}
+.btn-next:hover{background:var(--teal2);}
+.btn-next:disabled{opacity:.35;cursor:not-allowed;}
+
+.section-divider{height:1px;background:var(--teal-border2);margin:1.25rem 0;}
+
+/* ── MACBOOK SCALING (1280–1440px) ── */
+@media(max-width:1280px){
+  .screen{padding:2rem 1.5rem;}
+  .h1{font-size:26px;}
+  .risk-grid,.eg-grid-race{grid-template-columns:repeat(3,1fr);}
+}
+
+/* ── TABLET (768–1024px) ── */
+@media(max-width:1024px){
+  .h1{font-size:22px;}
+  .sub{font-size:12px;}
+  .ai-grid{grid-template-columns:repeat(4,1fr);}
+  .sys-categories{grid-template-columns:1fr;}
+  .risk-grid,.eg-grid-race{grid-template-columns:repeat(2,1fr);}
+  .preview-grid{grid-template-columns:1fr;}
+  .context-grid{grid-template-columns:1fr;}
+  .step-bar{gap:.625rem;padding:.75rem 1rem;}
+  .step-label{font-size:10px;}
+}
+
+/* ── MOBILE (≤768px) ── */
+@media(max-width:768px){
+  .nav{padding:.75rem 1rem;}
+  .nav-center{display:none;}
+  .nav-back{font-size:11px;}
+  .step-label{display:none;}
+  .step-bar{gap:.5rem;padding:.625rem .75rem;}
+  .screen{padding:1.5rem 1rem;}
+  .h1{font-size:20px;line-height:1.2;}
+  .sub{font-size:12px;margin-bottom:1.25rem;}
+  .ai-grid{grid-template-columns:repeat(2,1fr);gap:8px;}
+  .ai-card{padding:.625rem .5rem;}
+  .ai-name{font-size:11px;}
+  .sys-categories{grid-template-columns:1fr;}
+  .sys-chip{font-size:10px;padding:4px 10px;}
+  .preview-grid{grid-template-columns:1fr;}
+  .prev-desc{font-size:11px;}
+  .context-grid{grid-template-columns:1fr;}
+  .risk-grid,.eg-grid-race{grid-template-columns:1fr;}
+  .chat-shell{margin-bottom:8px;}
+  .chat-body{padding:12px;min-height:220px;}
+  .msg-user{font-size:11.5px;padding:8px 11px;}
+  .msg-ai-chat{font-size:11.5px;}
+  .tc-warn,.tc-good{font-size:9px;padding:5px 7px;}
+  .tool-pill{font-size:10px;}
+  .result-card{flex-direction:column;gap:8px;}
+  .risk-card-desc,.eg-desc-sm{font-size:10.5px;}
+  .closing-card{padding:1.125rem;}
+  .btn-primary,.btn-secondary{font-size:12px;padding:.625rem 1rem;}
+  .footer-nav{padding:.875rem 1rem;}
+  .btn-ghost{font-size:11px;padding:.45rem .875rem;}
+  .btn-next{font-size:12px;padding:.5rem 1.25rem;}
+  .ftr-mid{font-size:10px;}
+  .swap-cta-inline{flex-direction:column;align-items:flex-start;gap:.5rem;}
+  .swap-btn-inline{width:100%;text-align:center;}
+}
+
+/* CHAT ANIMATION */
+.typing-indicator{display:inline-flex;align-items:center;gap:4px;padding:.5rem .875rem;background:#f0f0f0;border-radius:20px;margin-bottom:.5rem;}
+.typing-dot{width:7px;height:7px;border-radius:50%;background:#aaa;animation:bounce 1.2s infinite;}
+.typing-dot:nth-child(2){animation-delay:.2s;}
+.typing-dot:nth-child(3){animation-delay:.4s;}
+@keyframes bounce{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-5px)}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes slideIn{from{opacity:0;transform:translateX(-8px)}to{opacity:1;transform:none}}
+
+/* LLM LOGO */
+.llm-logo{width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;overflow:hidden;}
+.ai-card .ai-maker{display:none;}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <a class="nav-logo" href="index.html"><div class="nav-lmark">W</div>Workato · Enterprise MCP</a>
+  <span class="nav-center">Enterprise MCP <span>Explorer</span></span>
+  <div class="nav-right">
+    <a class="nav-back" href="index.html">← Use cases</a>
+  </div>
+</nav>
+<div class="prog-wrap"><div class="prog-fill" id="progFill" style="width:0%"></div></div>
+<div class="step-bar" id="stepBar"></div>
+
+<div class="screens">
+
+  <!-- S1 -->
+  <div class="screen active" id="s1">
+    <div class="pre">Step 1 of 4</div>
+    <h1 class="h1">Select your LLM client<br>and <em>MCP servers.</em></h1>
+    <p class="sub">Pick the AI client and business systems your team already uses. We'll show you exactly what Workato Enterprise MCP unlocks — grounded in prebuilt servers available today.</p>
+    <div class="eyebrow">Which AI client?</div>
+    <div class="ai-grid">
+      <div class="ai-card" onclick="pickAI(this,'Microsoft Copilot','M','#f0f4ff','#5b5bd6','Microsoft · M365')">
+        <svg width="32" height="32" style="display:block;margin:0 auto 6px;" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 48 48"><path d="M34.142 7.325A4.63 4.63 0 0029.7 4H28.35a4.63 4.63 0 00-4.554 3.794L21.48 20.407l.575-1.965a4.63 4.63 0 014.444-3.33h7.853l3.294 1.282 3.175-1.283h-.926a4.63 4.63 0 01-4.443-3.325l-1.31-4.461z" fill="url(#prefix__paint0_radial_56201_15503)"/><path d="M14.33 40.656A4.63 4.63 0 0018.779 44h2.87a4.63 4.63 0 004.629-4.51l.312-12.163-.654 2.233a4.63 4.63 0 01-4.443 3.329h-7.919l-2.823-1.532-3.057 1.532h.912a4.63 4.63 0 014.447 3.344l1.279 4.423z" fill="url(#prefix__paint1_radial_56201_15503)"/><path d="M29.5 4H13.46c-4.583 0-7.332 6.057-9.165 12.113C2.123 23.29-.72 32.885 7.503 32.885h6.925a4.63 4.63 0 004.456-3.358 2078.617 2078.617 0 014.971-17.156c.843-2.843 1.544-5.284 2.621-6.805C27.08 4.714 28.086 4 29.5 4z" fill="url(#prefix__paint2_linear_56201_15503)"/><path d="M29.5 4H13.46c-4.583 0-7.332 6.057-9.165 12.113C2.123 23.29-.72 32.885 7.503 32.885h6.925a4.63 4.63 0 004.456-3.358 2078.617 2078.617 0 014.971-17.156c.843-2.843 1.544-5.284 2.621-6.805C27.08 4.714 28.086 4 29.5 4z" fill="url(#prefix__paint3_linear_56201_15503)"/><path d="M18.498 44h16.04c4.582 0 7.332-6.058 9.165-12.115 2.171-7.177 5.013-16.775-3.208-16.775h-6.926a4.63 4.63 0 00-4.455 3.358 2084.036 2084.036 0 01-4.972 17.16c-.842 2.843-1.544 5.285-2.62 6.806-.604.852-1.61 1.566-3.024 1.566z" fill="url(#prefix__paint4_radial_56201_15503)"/><path d="M18.498 44h16.04c4.582 0 7.332-6.058 9.165-12.115 2.171-7.177 5.013-16.775-3.208-16.775h-6.926a4.63 4.63 0 00-4.455 3.358 2084.036 2084.036 0 01-4.972 17.16c-.842 2.843-1.544 5.285-2.62 6.806-.604.852-1.61 1.566-3.024 1.566z" fill="url(#prefix__paint5_linear_56201_15503)"/><defs><radialGradient id="prefix__paint0_radial_56201_15503" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="matrix(-10.96051 -13.38922 12.59013 -10.30637 38.005 20.514)"><stop offset=".096" stop-color="#00AEFF"/><stop offset=".773" stop-color="#2253CE"/><stop offset="1" stop-color="#0736C4"/></radialGradient><radialGradient id="prefix__paint1_radial_56201_15503" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="rotate(51.84 -28.201 27.85) scale(15.9912 15.5119)"><stop stop-color="#FFB657"/><stop offset=".634" stop-color="#FF5F3D"/><stop offset=".923" stop-color="#C02B3C"/></radialGradient><radialGradient id="prefix__paint4_radial_56201_15503" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="rotate(109.274 16.301 20.802) scale(38.3873 45.9867)"><stop offset=".066" stop-color="#8C48FF"/><stop offset=".5" stop-color="#F2598A"/><stop offset=".896" stop-color="#FFB152"/></radialGradient><linearGradient id="prefix__paint2_linear_56201_15503" x1="12.5" y1="7.5" x2="14.788" y2="33.975" gradientUnits="userSpaceOnUse"><stop offset=".156" stop-color="#0D91E1"/><stop offset=".487" stop-color="#52B471"/><stop offset=".652" stop-color="#98BD42"/><stop offset=".937" stop-color="#FFC800"/></linearGradient><linearGradient id="prefix__paint3_linear_56201_15503" x1="14.5" y1="4" x2="15.75" y2="32.885" gradientUnits="userSpaceOnUse"><stop stop-color="#3DCBFF"/><stop offset=".247" stop-color="#0588F7" stop-opacity="0"/></linearGradient><linearGradient id="prefix__paint5_linear_56201_15503" x1="42.586" y1="13.346" x2="42.569" y2="21.215" gradientUnits="userSpaceOnUse"><stop offset=".058" stop-color="#F8ADFA"/><stop offset=".708" stop-color="#A86EDD" stop-opacity="0"/></linearGradient></defs></svg>
+        <span class="ai-name">Microsoft Copilot</span>
+      </div>
+      <div class="ai-card" onclick="pickAI(this,'ChatGPT','G','#f9fafb','#10A37F','OpenAI')">
+        <svg width="32" height="32" style="display:block;margin:0 auto 6px;" xmlns="http://www.w3.org/2000/svg" shape-rendering="geometricPrecision" text-rendering="geometricPrecision" image-rendering="optimizeQuality" fill-rule="evenodd" clip-rule="evenodd" viewBox="0 0 512 509.639"><path fill="#fff" d="M115.612 0h280.775C459.974 0 512 52.026 512 115.612v278.415c0 63.587-52.026 115.613-115.613 115.613H115.612C52.026 509.64 0 457.614 0 394.027V115.612C0 52.026 52.026 0 115.612 0z"/><path fill-rule="nonzero" d="M412.037 221.764a90.834 90.834 0 004.648-28.67 90.79 90.79 0 00-12.443-45.87c-16.37-28.496-46.738-46.089-79.605-46.089-6.466 0-12.943.683-19.264 2.04a90.765 90.765 0 00-67.881-30.515h-.576c-.059.002-.149.002-.216.002-39.807 0-75.108 25.686-87.346 63.554-25.626 5.239-47.748 21.31-60.682 44.03a91.873 91.873 0 00-12.407 46.077 91.833 91.833 0 0023.694 61.553 90.802 90.802 0 00-4.649 28.67 90.804 90.804 0 0012.442 45.87c16.369 28.504 46.74 46.087 79.61 46.087a91.81 91.81 0 0019.253-2.04 90.783 90.783 0 0067.887 30.516h.576l.234-.001c39.829 0 75.119-25.686 87.357-63.588 25.626-5.242 47.748-21.312 60.682-44.033a91.718 91.718 0 0012.383-46.035 91.83 91.83 0 00-23.693-61.553l-.004-.005zM275.102 413.161h-.094a68.146 68.146 0 01-43.611-15.8 56.936 56.936 0 002.155-1.221l72.54-41.901a11.799 11.799 0 005.962-10.251V241.651l30.661 17.704c.326.163.55.479.596.84v84.693c-.042 37.653-30.554 68.198-68.21 68.273h.001zm-146.689-62.649a68.128 68.128 0 01-9.152-34.085c0-3.904.341-7.817 1.005-11.663.539.323 1.48.897 2.155 1.285l72.54 41.901a11.832 11.832 0 0011.918-.002l88.563-51.137v35.408a1.1 1.1 0 01-.438.94l-73.33 42.339a68.43 68.43 0 01-34.11 9.12 68.359 68.359 0 01-59.15-34.11l-.001.004zm-19.083-158.36a68.044 68.044 0 0135.538-29.934c0 .625-.036 1.731-.036 2.5v83.801l-.001.07a11.79 11.79 0 005.954 10.242l88.564 51.13-30.661 17.704a1.096 1.096 0 01-1.034.093l-73.337-42.375a68.36 68.36 0 01-34.095-59.143 68.412 68.412 0 019.112-34.085l-.004-.003zm251.907 58.621l-88.563-51.137 30.661-17.697a1.097 1.097 0 011.034-.094l73.337 42.339c21.109 12.195 34.132 34.746 34.132 59.132 0 28.604-17.849 54.199-44.686 64.078v-86.308c.004-.032.004-.065.004-.096 0-4.219-2.261-8.119-5.919-10.217zm30.518-45.93c-.539-.331-1.48-.898-2.155-1.286l-72.54-41.901a11.842 11.842 0 00-5.958-1.611c-2.092 0-4.15.558-5.957 1.611l-88.564 51.137v-35.408l-.001-.061a1.1 1.1 0 01.44-.88l73.33-42.303a68.301 68.301 0 0134.108-9.129c37.704 0 68.281 30.577 68.281 68.281a68.69 68.69 0 01-.984 11.545v.005zm-191.843 63.109l-30.668-17.704a1.09 1.09 0 01-.596-.84v-84.692c.016-37.685 30.593-68.236 68.281-68.236a68.332 68.332 0 0143.689 15.804 63.09 63.09 0 00-2.155 1.222l-72.54 41.9a11.794 11.794 0 00-5.961 10.248v.068l-.05 102.23zm16.655-35.91l39.445-22.782 39.444 22.767v45.55l-39.444 22.767-39.445-22.767v-45.535z"/></svg>
+        <span class="ai-name">ChatGPT</span>
+      </div>
+      <div class="ai-card" onclick="pickAI(this,'Claude','C','#fef3ea','#D4713A','Anthropic')">
+        <svg width="32" height="32" style="display:block;margin:0 auto 6px;" xmlns="http://www.w3.org/2000/svg" shape-rendering="geometricPrecision" text-rendering="geometricPrecision" image-rendering="optimizeQuality" fill-rule="evenodd" clip-rule="evenodd" viewBox="0 0 512 509.64"><path fill="#D77655" d="M115.612 0h280.775C459.974 0 512 52.026 512 115.612v278.415c0 63.587-52.026 115.612-115.613 115.612H115.612C52.026 509.639 0 457.614 0 394.027V115.612C0 52.026 52.026 0 115.612 0z"/><path fill="#FCF2EE" fill-rule="nonzero" d="M142.27 316.619l73.655-41.326 1.238-3.589-1.238-1.996-3.589-.001-12.31-.759-42.084-1.138-36.498-1.516-35.361-1.896-8.897-1.895-8.34-10.995.859-5.484 7.482-5.03 10.717.935 23.683 1.617 35.537 2.452 25.782 1.517 38.193 3.968h6.064l.86-2.451-2.073-1.517-1.618-1.517-36.776-24.922-39.81-26.338-20.852-15.166-11.273-7.683-5.687-7.204-2.451-15.721 10.237-11.273 13.75.935 3.513.936 13.928 10.716 29.749 23.027 38.848 28.612 5.687 4.727 2.275-1.617.278-1.138-2.553-4.271-21.13-38.193-22.546-38.848-10.035-16.101-2.654-9.655c-.935-3.968-1.617-7.304-1.617-11.374l11.652-15.823 6.445-2.073 15.545 2.073 6.547 5.687 9.655 22.092 15.646 34.78 24.265 47.291 7.103 14.028 3.791 12.992 1.416 3.968 2.449-.001v-2.275l1.997-26.641 3.69-32.707 3.589-42.084 1.239-11.854 5.863-14.206 11.652-7.683 9.099 4.348 7.482 10.716-1.036 6.926-4.449 28.915-8.72 45.294-5.687 30.331h3.313l3.792-3.791 15.342-20.372 25.782-32.227 11.374-12.789 13.27-14.129 8.517-6.724 16.1-.001 11.854 17.617-5.307 18.199-16.581 21.029-13.75 17.819-19.716 26.54-12.309 21.231 1.138 1.694 2.932-.278 44.536-9.479 24.062-4.347 28.714-4.928 12.992 6.066 1.416 6.167-5.106 12.613-30.71 7.583-36.018 7.204-53.636 12.689-.657.48.758.935 24.164 2.275 10.337.556h25.301l47.114 3.514 12.309 8.139 7.381 9.959-1.238 7.583-18.957 9.655-25.579-6.066-59.702-14.205-20.474-5.106-2.83-.001v1.694l17.061 16.682 31.266 28.233 39.152 36.397 1.997 8.999-5.03 7.102-5.307-.758-34.401-25.883-13.27-11.651-30.053-25.302-1.996-.001v2.654l6.926 10.136 36.574 54.975 1.895 16.859-2.653 5.485-9.479 3.311-10.414-1.895-21.408-30.054-22.092-33.844-17.819-30.331-2.173 1.238-10.515 113.261-4.929 5.788-11.374 4.348-9.478-7.204-5.03-11.652 5.03-23.027 6.066-30.052 4.928-23.886 4.449-29.674 2.654-9.858-.177-.657-2.173.278-22.37 30.71-34.021 45.977-26.919 28.815-6.445 2.553-11.173-5.789 1.037-10.337 6.243-9.2 37.257-47.392 22.47-29.371 14.508-16.961-.101-2.451h-.859l-98.954 64.251-17.618 2.275-7.583-7.103.936-11.652 3.589-3.791 29.749-20.474-.101.102.024.101z"/></svg>
+        <span class="ai-name">Claude</span>
+      </div>
+      <div class="ai-card" onclick="pickAI(this,'Gemini','Gm','#faf8ff','#4285F4','Google')">
+        <svg width="32" height="32" style="display:block;margin:0 auto 6px;" fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 65 65"><mask id="maskme" style="mask-type:alpha" maskUnits="userSpaceOnUse" x="0" y="0" width="65" height="65"><path d="M32.447 0c.68 0 1.273.465 1.439 1.125a38.904 38.904 0 001.999 5.905c2.152 5 5.105 9.376 8.854 13.125 3.751 3.75 8.126 6.703 13.125 8.855a38.98 38.98 0 005.906 1.999c.66.166 1.124.758 1.124 1.438 0 .68-.464 1.273-1.125 1.439a38.902 38.902 0 00-5.905 1.999c-5 2.152-9.375 5.105-13.125 8.854-3.749 3.751-6.702 8.126-8.854 13.125a38.973 38.973 0 00-2 5.906 1.485 1.485 0 01-1.438 1.124c-.68 0-1.272-.464-1.438-1.125a38.913 38.913 0 00-2-5.905c-2.151-5-5.103-9.375-8.854-13.125-3.75-3.749-8.125-6.702-13.125-8.854a38.973 38.973 0 00-5.905-2A1.485 1.485 0 010 32.448c0-.68.465-1.272 1.125-1.438a38.903 38.903 0 005.905-2c5-2.151 9.376-5.104 13.125-8.854 3.75-3.749 6.703-8.125 8.855-13.125a38.972 38.972 0 001.999-5.905A1.485 1.485 0 0132.447 0z" fill="#000"/><path d="M32.447 0c.68 0 1.273.465 1.439 1.125a38.904 38.904 0 001.999 5.905c2.152 5 5.105 9.376 8.854 13.125 3.751 3.75 8.126 6.703 13.125 8.855a38.98 38.98 0 005.906 1.999c.66.166 1.124.758 1.124 1.438 0 .68-.464 1.273-1.125 1.439a38.902 38.902 0 00-5.905 1.999c-5 2.152-9.375 5.105-13.125 8.854-3.749 3.751-6.702 8.126-8.854 13.125a38.973 38.973 0 00-2 5.906 1.485 1.485 0 01-1.438 1.124c-.68 0-1.272-.464-1.438-1.125a38.913 38.913 0 00-2-5.905c-2.151-5-5.103-9.375-8.854-13.125-3.75-3.749-8.125-6.702-13.125-8.854a38.973 38.973 0 00-5.905-2A1.485 1.485 0 010 32.448c0-.68.465-1.272 1.125-1.438a38.903 38.903 0 005.905-2c5-2.151 9.376-5.104 13.125-8.854 3.75-3.749 6.703-8.125 8.855-13.125a38.972 38.972 0 001.999-5.905A1.485 1.485 0 0132.447 0z" fill="url(#prefix__paint0_linear_2001_67)"/></mask><g mask="url(#maskme)"><g filter="url(#prefix__filter0_f_2001_67)"><path d="M-5.859 50.734c7.498 2.663 16.116-2.33 19.249-11.152 3.133-8.821-.406-18.131-7.904-20.794-7.498-2.663-16.116 2.33-19.25 11.151-3.132 8.822.407 18.132 7.905 20.795z" fill="#FFE432"/></g><g filter="url(#prefix__filter1_f_2001_67)"><path d="M27.433 21.649c10.3 0 18.651-8.535 18.651-19.062 0-10.528-8.35-19.062-18.651-19.062S8.78-7.94 8.78 2.587c0 10.527 8.35 19.062 18.652 19.062z" fill="#FC413D"/></g><g filter="url(#prefix__filter2_f_2001_67)"><path d="M20.184 82.608c10.753-.525 18.918-12.244 18.237-26.174-.68-13.93-9.95-24.797-20.703-24.271C6.965 32.689-1.2 44.407-.519 58.337c.681 13.93 9.95 24.797 20.703 24.271z" fill="#00B95C"/></g><g filter="url(#prefix__filter3_f_2001_67)"><path d="M20.184 82.608c10.753-.525 18.918-12.244 18.237-26.174-.68-13.93-9.95-24.797-20.703-24.271C6.965 32.689-1.2 44.407-.519 58.337c.681 13.93 9.95 24.797 20.703 24.271z" fill="#00B95C"/></g><g filter="url(#prefix__filter4_f_2001_67)"><path d="M30.954 74.181c9.014-5.485 11.427-17.976 5.389-27.9-6.038-9.925-18.241-13.524-27.256-8.04-9.015 5.486-11.428 17.977-5.39 27.902 6.04 9.924 18.242 13.523 27.257 8.038z" fill="#00B95C"/></g><g filter="url(#prefix__filter5_f_2001_67)"><path d="M67.391 42.993c10.132 0 18.346-7.91 18.346-17.666 0-9.757-8.214-17.667-18.346-17.667s-18.346 7.91-18.346 17.667c0 9.757 8.214 17.666 18.346 17.666z" fill="#3186FF"/></g><g filter="url(#prefix__filter6_f_2001_67)"><path d="M-13.065 40.944c9.33 7.094 22.959 4.869 30.442-4.972 7.483-9.84 5.987-23.569-3.343-30.663C4.704-1.786-8.924.439-16.408 10.28c-7.483 9.84-5.986 23.57 3.343 30.664z" fill="#FBBC04"/></g><g filter="url(#prefix__filter7_f_2001_67)"><path d="M34.74 51.43c11.135 7.656 25.896 5.524 32.968-4.764 7.073-10.287 3.779-24.832-7.357-32.488C49.215 6.52 34.455 8.654 27.382 18.94c-7.072 10.288-3.779 24.833 7.357 32.49z" fill="#3186FF"/></g><g filter="url(#prefix__filter8_f_2001_67)"><path d="M54.984-2.336c2.833 3.852-.808 11.34-8.131 16.727-7.324 5.387-15.557 6.631-18.39 2.78-2.833-3.853.807-11.342 8.13-16.728 7.324-5.387 15.558-6.631 18.39-2.78z" fill="#749BFF"/></g><g filter="url(#prefix__filter9_f_2001_67)"><path d="M31.727 16.104C43.053 5.598 46.94-8.626 40.41-15.666c-6.53-7.04-21.006-4.232-32.332 6.274s-15.214 24.73-8.683 31.77c6.53 7.04 21.006 4.232 32.332-6.274z" fill="#FC413D"/></g><g filter="url(#prefix__filter10_f_2001_67)"><path d="M8.51 53.838c6.732 4.818 14.46 5.55 17.262 1.636 2.802-3.915-.384-10.994-7.116-15.812-6.731-4.818-14.46-5.55-17.261-1.636-2.802 3.915.383 10.994 7.115 15.812z" fill="#FFEE48"/></g></g><defs><filter id="prefix__filter0_f_2001_67" x="-19.824" y="13.152" width="39.274" height="43.217" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB"><feFlood flood-opacity="0" result="BackgroundImageFix"/><feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape"/><feGaussianBlur stdDeviation="2.46" result="effect1_foregroundBlur_2001_67"/></filter><filter id="prefix__filter1_f_2001_67" x="-15.001" y="-40.257" width="84.868" height="85.688" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB"><feFlood flood-opacity="0" result="BackgroundImageFix"/><feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape"/><feGaussianBlur stdDeviation="11.891" result="effect1_foregroundBlur_2001_67"/></filter><filter id="prefix__filter2_f_2001_67" x="-20.776" y="11.927" width="79.454" height="90.916" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB"><feFlood flood-opacity="0" result="BackgroundImageFix"/><feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape"/><feGaussianBlur stdDeviation="10.109" result="effect1_foregroundBlur_2001_67"/></filter><filter id="prefix__filter3_f_2001_67" x="-20.776" y="11.927" width="79.454" height="90.916" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB"><feFlood flood-opacity="0" result="BackgroundImageFix"/><feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape"/><feGaussianBlur stdDeviation="10.109" result="effect1_foregroundBlur_2001_67"/></filter><filter id="prefix__filter4_f_2001_67" x="-19.845" y="15.459" width="79.731" height="81.505" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB"><feFlood flood-opacity="0" result="BackgroundImageFix"/><feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape"/><feGaussianBlur stdDeviation="10.109" result="effect1_foregroundBlur_2001_67"/></filter><filter id="prefix__filter5_f_2001_67" x="29.832" y="-11.552" width="75.117" height="73.758" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB"><feFlood flood-opacity="0" result="BackgroundImageFix"/><feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape"/><feGaussianBlur stdDeviation="9.606" result="effect1_foregroundBlur_2001_67"/></filter><filter id="prefix__filter6_f_2001_67" x="-38.583" y="-16.253" width="78.135" height="78.758" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB"><feFlood flood-opacity="0" result="BackgroundImageFix"/><feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape"/><feGaussianBlur stdDeviation="8.706" result="effect1_foregroundBlur_2001_67"/></filter><filter id="prefix__filter7_f_2001_67" x="8.107" y="-5.966" width="78.877" height="77.539" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB"><feFlood flood-opacity="0" result="BackgroundImageFix"/><feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape"/><feGaussianBlur stdDeviation="7.775" result="effect1_foregroundBlur_2001_67"/></filter><filter id="prefix__filter8_f_2001_67" x="13.587" y="-18.488" width="56.272" height="51.81" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB"><feFlood flood-opacity="0" result="BackgroundImageFix"/><feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape"/><feGaussianBlur stdDeviation="6.957" result="effect1_foregroundBlur_2001_67"/></filter><filter id="prefix__filter9_f_2001_67" x="-15.526" y="-31.297" width="70.856" height="69.306" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB"><feFlood flood-opacity="0" result="BackgroundImageFix"/><feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape"/><feGaussianBlur stdDeviation="5.876" result="effect1_foregroundBlur_2001_67"/></filter><filter id="prefix__filter10_f_2001_67" x="-14.168" y="20.964" width="55.501" height="51.571" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB"><feFlood flood-opacity="0" result="BackgroundImageFix"/><feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape"/><feGaussianBlur stdDeviation="7.273" result="effect1_foregroundBlur_2001_67"/></filter><linearGradient id="prefix__paint0_linear_2001_67" x1="18.447" y1="43.42" x2="52.153" y2="15.004" gradientUnits="userSpaceOnUse"><stop stop-color="#4893FC"/><stop offset=".27" stop-color="#4893FC"/><stop offset=".777" stop-color="#969DFF"/><stop offset="1" stop-color="#BD99FE"/></linearGradient></defs></svg>
+        <span class="ai-name">Gemini</span>
+      </div>
+    </div>
+    <div class="eyebrow" style="margin-bottom:.625rem;">Which systems? <span style="color:var(--teal);font-weight:600;">Pick at least 2</span></div>
+    <div class="sys-categories">
+      <div>
+        <div class="sys-cat"><div class="sys-cat-label">Communication</div><div class="sys-chips">
+          <div class="sys-chip" onclick="toggleSys(this,'Slack')">Slack</div>
+          <div class="sys-chip" onclick="toggleSys(this,'Gmail')">Gmail</div>
+          <div class="sys-chip" onclick="toggleSys(this,'Outlook Email')">Outlook Email</div>
+          <div class="sys-chip" onclick="toggleSys(this,'Google Calendar')">Google Calendar</div>
+          <div class="sys-chip" onclick="toggleSys(this,'Outlook Calendar')">Outlook Calendar</div>
+          <div class="sys-chip" onclick="toggleSys(this,'Zoom')">Zoom</div>
+        </div></div>
+        <div class="sys-cat"><div class="sys-cat-label">Productivity</div><div class="sys-chips">
+          <div class="sys-chip" onclick="toggleSys(this,'Confluence')">Confluence</div>
+          <div class="sys-chip" onclick="toggleSys(this,'Jira')">Jira</div>
+          <div class="sys-chip" onclick="toggleSys(this,'GitHub')">GitHub</div>
+          <div class="sys-chip" onclick="toggleSys(this,'Google Drive')">Google Drive</div>
+          <div class="sys-chip" onclick="toggleSys(this,'Google Docs')">Google Docs</div>
+          <div class="sys-chip" onclick="toggleSys(this,'Google Sheets')">Google Sheets</div>
+          <div class="sys-chip" onclick="toggleSys(this,'OneDrive')">OneDrive</div>
+          <div class="sys-chip" onclick="toggleSys(this,'Excel')">Excel</div>
+          <div class="sys-chip" onclick="toggleSys(this,'Airtable')">Airtable</div>
+        </div></div>
+        <div class="sys-cat"><div class="sys-cat-label">HR</div><div class="sys-chips">
+          <div class="sys-chip" onclick="toggleSys(this,'Workday')">Workday</div>
+          <div class="sys-chip" onclick="toggleSys(this,'Namely')">Namely</div>
+        </div></div>
+        <div class="sys-cat"><div class="sys-cat-label">IT &amp; Identity</div><div class="sys-chips">
+          <div class="sys-chip" onclick="toggleSys(this,'Okta')">Okta</div>
+          <div class="sys-chip" onclick="toggleSys(this,'Google Directory')">Google Directory</div>
+        </div></div>
+        <div class="sys-cat"><div class="sys-cat-label">Data</div><div class="sys-chips">
+          <div class="sys-chip" onclick="toggleSys(this,'Databricks')">Databricks</div>
+        </div></div>
+      </div>
+      <div>
+        <div class="sys-cat"><div class="sys-cat-label">Sales & Revenue</div><div class="sys-chips">
+          <div class="sys-chip" onclick="toggleSys(this,'Salesforce')">Salesforce</div>
+          <div class="sys-chip" onclick="toggleSys(this,'Gong')">Gong</div>
+          <div class="sys-chip" onclick="toggleSys(this,'Outreach')">Outreach</div>
+        </div></div>
+        <div class="sys-cat"><div class="sys-cat-label">Marketing</div><div class="sys-chips">
+          <div class="sys-chip" onclick="toggleSys(this,'Marketo Leads')">Marketo Leads</div>
+          <div class="sys-chip" onclick="toggleSys(this,'Marketo Programs')">Marketo Programs</div>
+          <div class="sys-chip" onclick="toggleSys(this,'X / Twitter')">X / Twitter</div>
+        </div></div>
+        <div class="sys-cat"><div class="sys-cat-label">Finance & Commerce</div><div class="sys-chips">
+          <div class="sys-chip" onclick="toggleSys(this,'Stripe')">Stripe</div>
+          <div class="sys-chip" onclick="toggleSys(this,'Shopify')">Shopify</div>
+        </div></div>
+        <div class="sys-cat"><div class="sys-cat-label">Support</div><div class="sys-chips">
+          <div class="sys-chip" onclick="toggleSys(this,'Zendesk Tickets')">Zendesk Tickets</div>
+          <div class="sys-chip" onclick="toggleSys(this,'Zendesk KB')">Zendesk KB</div>
+        </div></div>
+      </div>
+    </div>
+    <div class="hint" id="hint1">Please select an AI client and at least 2 systems to continue.</div>
+    <div class="sel-status" id="selStatus">No systems selected yet</div>
+  </div>
+
+  <!-- S2 -->
+  <div class="screen" id="s2">
+    <div class="pre">Step 2 of 4</div>
+    <h1 class="h1">What your selected systems<br>unlock with <em>Enterprise MCP.</em></h1>
+    <p class="sub">These are the prebuilt MCP servers available for your stack — what they do out of the box, and the tools they expose to your AI client.</p>
+    <div id="nudgeBlock"></div>
+    <div class="preview-grid" id="previewGrid"></div>
+    <div class="identity-badge" id="identityBadge"></div>
+  </div>
+
+  <!-- S3 -->
+  <div class="screen" id="s3">
+    <div class="pre">Step 3 of 4</div>
+    <h1 class="h1">Same prompt. Every system you picked.<br><em>Watch what changes.</em></h1>
+    <p class="sub">First, watch what happens with native community MCPs — one per system, no shared governance. Then swap in Workato Enterprise MCP and see the difference.</p>
+    <div class="context-grid">
+      <div class="context-banner">
+        <div class="cb-num red">1</div>
+        <div><div class="cb-label red">Community MCPs</div><div class="cb-text">Native, vendor-supplied MCPs — one per system. Each is a separate identity, separate schema, separate audit trail.</div></div>
+      </div>
+      <div class="context-banner" style="opacity:.4;" id="cb2">
+        <div class="cb-num teal">2</div>
+        <div><div class="cb-label teal">Workato Enterprise MCP</div><div class="cb-text">The Workato control plane. One governed layer across all your systems — verified identity, scoped access, centralized audit logs.</div></div>
+      </div>
+    </div>
+    <div id="raceContent"></div>
+  </div>
+
+  <!-- S4 -->
+  <div class="screen" id="s4">
+    <div class="pre">Step 4 of 4</div>
+    <h1 class="h1">Ready to connect your systems<br>to your <em>LLM?</em></h1>
+    <p class="sub">Your selected systems have prebuilt MCP servers ready to install. Start with one, see value immediately, and expand from there.</p>
+    <div class="server-selected-summary" id="closingBadges"></div>
+    <div class="closing-card">
+      <div class="closing-pre">Getting started</div>
+      <div class="closing-title">Three steps to your first Enterprise MCP connection</div>
+      <div class="closing-steps">
+        <div class="closing-step"><div class="step-num">1</div><div class="step-text"><strong>Access the MCP registry</strong> in your Workato workspace under AI Hub → MCP Servers. Browse the prebuilt servers for your selected systems. <a href="https://docs.workato.com/en/mcp/registry/mcp-servers.html" target="_blank" style="color:var(--teal);text-decoration:none;">View Prebuilt Servers →</a></div></div>
+        <div class="closing-step"><div class="step-num">2</div><div class="step-text"><strong>Connect your first server.</strong> Pick the system with the highest daily use — Salesforce, Slack, or your email client are strong starting points. Authenticate and activate. <a href="https://docs.workato.com/en/mcp/mcp-server-registry" target="_blank" style="color:var(--teal);text-decoration:none;">View MCP server setup docs →</a></div></div>
+        <div class="closing-step"><div class="step-num">3</div><div class="step-text"><strong>Connect your LLM</strong> to the Workato MCP Gateway. Copy your MCP endpoint URL, paste it into your LLM's MCP configuration, and run your first prompt. <a href="https://docs.workato.com/en/mcp/registry/ai-model-configuration" target="_blank" style="color:var(--teal);text-decoration:none;">View LLM configuration docs →</a></div></div>
+      </div>
+      <a class="btn-primary" href="https://view-su2.highspot.com/viewer/577f5644cb82ff12e6d401255a410013" target="_blank">View getting started guide →</a>
+    </div>
+    <div style="text-align:center;margin-top:1rem;">
+      <a href="index.html" style="font-size:12px;color:var(--muted);text-decoration:none;transition:color .2s;" onmouseover="this.style.color='var(--teal)'" onmouseout="this.style.color='var(--muted)'">← Back to use cases</a>
+    </div>
+  </div>
+
+</div>
+
+<div class="footer-nav">
+  <button class="btn-ghost" onclick="prev()" id="backBtn" style="visibility:hidden;">← Back</button>
+  <span class="ftr-mid" id="ftrMid">01 · Select LLM & MCP Servers</span>
+  <button class="btn-next" onclick="next()" id="nextBtn">Next →</button>
+</div>
+
+<script>
+const TOTAL=4;
+const STEP_LABELS=['Select LLM & MCP Servers','Preview','See it in action','Get started'];
+let cur=1, workatoSeen=false;
+let selAI={name:'',abbr:'',iconBg:'',iconColor:'',sub:''};
+let selSys=new Set();
+
+const SYS_DATA={
+  'Salesforce':{desc:'Search and update opportunities, accounts, contacts, tasks, and events.',tools:['search_opportunities','search_accounts','upsert_opportunity','upsert_contact','upsert_task']},
+  'Gong':{desc:'Retrieve call recordings, transcripts, and summaries. Surface deal risk and action items from every conversation.',tools:['search_calls','get_call_transcript','get_call_summary','list_call_participants']},
+  'Outreach':{desc:'Manage prospects, sequences, and accounts. Enroll, pause, or update sequence steps.',tools:['search_prospects','search_sequences','enroll_prospect','update_prospect']},
+  'Slack':{desc:'Post messages to channels or users, search message history, and retrieve thread context.',tools:['post_message','search_messages','list_channels','get_thread']},
+  'Gmail':{desc:'Search and read emails, draft and send messages, manage labels and attachments.',tools:['search_threads','get_message','draft_message','send_message']},
+  'Outlook Email':{desc:'Search email threads, draft and send messages, manage folders and categories.',tools:['search_messages','get_message','draft_message','send_message']},
+  'Google Calendar':{desc:'Retrieve events, check availability, and create or update calendar entries.',tools:['list_events','get_availability','create_event','update_event']},
+  'Outlook Calendar':{desc:'Retrieve events, check availability, and create or update calendar entries across time zones.',tools:['list_events','get_availability','create_event','update_event']},
+  'Zoom':{desc:'Search past meetings, retrieve recordings and transcripts, and check attendance.',tools:['search_meetings','get_recording','get_transcript','list_attendees']},
+  'Confluence':{desc:'Search and read pages across your knowledge base. Create and update content.',tools:['search_pages','get_page','create_page','update_page','append_to_page']},
+  'Jira':{desc:'Search, create, and update issues. Transition status and track sprint progress.',tools:['search_issues','get_issue','create_issue','update_issue','transition_issue']},
+  'GitHub':{desc:'Retrieve repo info, create and update issues and pull requests.',tools:['list_repos','get_issue','create_issue','list_pull_requests']},
+  'Google Drive':{desc:'Find files, retrieve content and metadata, organize folders, manage sharing.',tools:['search_files','get_file','get_metadata','list_folder']},
+  'OneDrive':{desc:'Find files and folders, retrieve metadata and content, move, copy, and upload.',tools:['search_files','get_file','move_file','copy_file','upload_file']},
+  'Google Docs':{desc:'Read and summarize documents. Create and update document content.',tools:['get_document','search_documents','create_document','update_document']},
+  'Google Sheets':{desc:'Retrieve tabular data, append and update rows, manage sheets.',tools:['get_sheet_data','append_rows','update_rows','list_sheets']},
+  'Excel':{desc:'Read and update workbooks, append rows, manage worksheets.',tools:['get_workbook_data','append_rows','update_rows','list_worksheets']},
+  'Airtable':{desc:'Manage records across bases and tables. Search, create, update, and delete records.',tools:['search_records','get_record','create_record','update_record']},
+  'Workday':{desc:'View employee profiles, check time-off balances, submit or approve PTO.',tools:['get_employee_profile','list_time_off_balances','submit_time_off','approve_time_off']},
+  'Namely':{desc:'Retrieve HR and directory info for employees and managers. Explore workforce structure.',tools:['get_employee','search_employees','get_org_chart','get_workforce_summary']},
+  'Okta':{desc:'Retrieve identity and access information, surface SSO links, check authentication status.',tools:['get_user','search_users','get_app_assignments','get_sso_links']},
+  'Google Directory':{desc:'Search colleagues, retrieve profiles, and explore org relationships.',tools:['search_users','get_user_profile','list_groups','get_group_members']},
+  'Stripe':{desc:'Look up customers, surface disputes and failed payments, manage subscriptions.',tools:['search_customers','search_disputes','search_payment_intents','get_subscription']},
+  'Shopify':{desc:'Retrieve order info, manage fulfillment status, and handle cancellations.',tools:['search_orders','get_order','update_fulfillment','cancel_order']},
+  'Zendesk Tickets':{desc:'Find, create, and update support tickets. Manage queues, monitor SLAs, reply to customers.',tools:['search_tickets','get_ticket','create_ticket','update_ticket','reply_to_ticket']},
+  'Zendesk KB':{desc:'Search, read, create, and update help articles. Navigate knowledge base structure.',tools:['search_articles','get_article','create_article','update_article']},
+  'Marketo Leads':{desc:'Find, create, and update leads. Review activity history and manage list membership.',tools:['search_leads','get_lead','create_lead','update_lead','get_activity_history']},
+  'Marketo Programs':{desc:'Create, clone, and manage programs. Activate campaigns and track email performance.',tools:['list_programs','clone_program','activate_campaign','get_email_stats']},
+  'X / Twitter':{desc:'Monitor brand and competitor mentions, research accounts, track engagement.',tools:['search_mentions','get_account_info','search_tweets','get_engagement_metrics']},
+  'Databricks':{desc:'Run read-only SQL queries against your data warehouse. Explore schemas and surface analytics.',tools:['execute_query','list_schemas','list_tables','get_table_schema']},
+};
+
+// Map system names to clean MCP action names for the fail/win rows
+const SYS_ACTIONS={
+  'Salesforce':['list_accounts','get_opportunity','search_records'],
+  'Gong':['list_calls','get_recording','search_transcripts'],
+  'Outreach':['list_prospects','get_sequence','list_accounts'],
+  'Slack':['list_channels','get_messages','search_workspace'],
+  'Gmail':['list_threads','get_message','send_message'],
+  'Outlook Email':['list_messages','get_email','send_message'],
+  'Google Calendar':['get_availability','list_events','create_event'],
+  'Outlook Calendar':['get_availability','list_events','create_event'],
+  'Zoom':['list_meetings','get_recording','get_transcript'],
+  'Confluence':['get_page','search_pages','create_page'],
+  'Jira':['list_issues','get_issue','transition_issue'],
+  'GitHub':['list_repos','get_issue','list_pull_requests'],
+  'Google Drive':['list_files','get_file','search_files'],
+  'OneDrive':['list_files','get_file','search_files'],
+  'Google Docs':['get_document','search_documents','create_document'],
+  'Google Sheets':['get_sheet_data','append_rows','update_rows'],
+  'Excel':['get_workbook_data','append_rows','update_rows'],
+  'Airtable':['search_records','get_record','create_record'],
+  'Workday':['get_employee_profile','list_time_off','submit_request'],
+  'Namely':['get_employee','search_employees','get_org_chart'],
+  'Okta':['get_user','search_users','get_app_assignments'],
+  'Google Directory':['search_users','get_user_profile','list_groups'],
+  'Stripe':['list_payments','get_dispute','get_subscription'],
+  'Shopify':['list_orders','get_order','update_fulfillment'],
+  'Zendesk Tickets':['list_tickets','get_ticket','update_ticket'],
+  'Zendesk KB':['search_articles','get_article','create_article'],
+  'Marketo Leads':['list_leads','get_lead','update_lead'],
+  'Marketo Programs':['list_programs','get_program','activate_campaign'],
+  'X / Twitter':['search_tweets','get_account','list_mentions'],
+  'Databricks':['execute_query','list_schemas','list_tables'],
+};
+
+// Fixed 3 governance failure reasons — always the same, function names adapt
+const FAIL_REASONS=[
+  'app-level OAuth only; actions run as a shared service account, not as the requesting user',
+  'returns full object payload; no field scoping, no data residency control',
+  'no audit log generated; action unattributable to any user',
+];
+
+const WIN_SUFFIX={
+  'Salesforce':'search_opportunities(owner=me, stage!=Closed, close_date=next_90d)',
+  'Gong':'search_calls(account=X, limit=3, speaker_labels=true)',
+  'Outreach':'search_prospects(owner=me, sequence_status=active)',
+  'Slack':'post_message(channel=#team, message=summary, verified_identity=true)',
+  'Gmail':'draft_message(to=X, subject=...) — draft-first, awaits approval',
+  'Outlook Email':'draft_message(to=X, subject=...) — draft-first, awaits approval',
+  'Google Calendar':'get_availability(attendees=exec_team, timezone_aware=true)',
+  'Outlook Calendar':'get_availability(attendees=exec_team, timezone_aware=true)',
+  'Zoom':'get_transcript(meeting_id=X, scoped=attendee_only)',
+  'Confluence':'search_pages(query=X, space=team, audit_logged=true)',
+  'Jira':'search_issues(assignee=me, sprint=active, status=blocked)',
+  'GitHub':'list_pull_requests(repo=X, state=open, assignee=me)',
+  'Google Drive':'search_files(owner=me, folder=scoped, audit_logged=true)',
+  'OneDrive':'search_files(owner=me, folder=scoped, audit_logged=true)',
+  'Google Docs':'get_document(id=X, scoped=true, audit_logged=true)',
+  'Google Sheets':'get_sheet_data(sheet=X, range=scoped, audit_logged=true)',
+  'Excel':'get_workbook_data(workbook=X, worksheet=scoped)',
+  'Airtable':'search_records(base=X, table=Y, filter=owner_me)',
+  'Workday':'get_time_off_balance(user=requesting_user, scoped=true)',
+  'Namely':'get_employee(id=requesting_user, scoped=true)',
+  'Okta':'get_user(id=requesting_user, scoped=true)',
+  'Google Directory':'search_users(query=X, domain=scoped)',
+  'Stripe':'search_disputes(date_range=this_week, status=open)',
+  'Shopify':'search_orders(fulfillment_status=unfulfilled, last_7d)',
+  'Zendesk Tickets':'search_tickets(account=X, status!=solved, priority=urgent)',
+  'Zendesk KB':'search_articles(query=X, section=scoped)',
+  'Marketo Leads':'search_leads(list=X, status=active)',
+  'Marketo Programs':'list_programs(status=active, type=email)',
+  'X / Twitter':'search_mentions(query=brand, since=7d)',
+  'Databricks':'execute_query(sql=SELECT..., catalog=scoped, read_only=true)',
+};
+
+function getSamplePrompt(keys){
+  if(keys.includes('Salesforce')&&keys.includes('Gong')) return 'Pull my open deals and the last call for each account. Flag anything at risk this quarter.';
+  if(keys.includes('Zendesk Tickets')) return 'What are the open support issues for my top accounts and how urgent are they?';
+  if(keys.includes('Stripe')) return 'Show me billing exceptions this week and flag any that overlap with active renewals.';
+  if(keys.includes('Shopify')) return 'Show me unfulfilled orders from the last 7 days and flag any at risk of missing SLA.';
+  if(keys.includes('Workday')||keys.includes('Namely')) return 'What is my current PTO balance, who needs to approve my time-off request, and are there any pending approvals waiting on me?';
+  if(keys.includes('Okta')||keys.includes('Google Directory')) return 'Who on my team needs access provisioned or deprovisioned this week, and what apps are they assigned to?';
+  if(keys.includes('Google Calendar')||keys.includes('Outlook Calendar')||keys.includes('Zoom')) return 'What\'s on my calendar this week? Flag any conflicts, surface prep context for key meetings, and identify gaps I can use for focused work.';
+  if(keys.includes('Confluence')||keys.includes('Google Docs')||keys.includes('Google Drive')||keys.includes('OneDrive')) return 'Find the latest documentation on our Q3 product roadmap and summarize the key decisions and open questions.';
+  if(keys.includes('Jira')||keys.includes('GitHub')) return 'What are the open blockers on my team\'s active sprint and what needs my attention today?';
+  if(keys.includes('Google Sheets')||keys.includes('Excel')||keys.includes('Airtable')) return 'Pull the latest data from my tracking sheet and flag anything that\'s off-plan or overdue.';
+  if(keys.includes('Marketo Leads')||keys.includes('Marketo Programs')||keys.includes('X / Twitter')) return 'How are our active campaigns performing this week? Surface anything that needs attention before end of day.';
+  if(keys.includes('Databricks')) return 'Run a usage summary for this month and flag any accounts that are significantly above or below expected consumption.';
+  if(keys.includes('Outreach')) return 'Which of my active sequences have the lowest engagement this week, and what should I change?';
+  return 'What should I focus on across my systems today? Summarize anything that needs my attention.';
+}
+
+function pickAI(el,name,abbr,bg,color,sub){
+  document.querySelectorAll('.ai-card').forEach(c=>c.classList.remove('sel'));
+  el.classList.add('sel');
+  selAI={name,abbr,iconBg:bg,iconColor:color,sub};
+  updateSelStatus();
+}
+
+function toggleSys(el,name){
+  if(selSys.has(name)){selSys.delete(name);el.classList.remove('sel');}
+  else{selSys.add(name);el.classList.add('sel');}
+  updateSelStatus();
+}
+
+function updateSelStatus(){
+  const el=document.getElementById('selStatus');
+  const n=selSys.size;
+  if(!selAI.name&&n===0){el.textContent='No systems selected yet';return;}
+  el.innerHTML=`<span>${selAI.name||'No AI client selected'}</span> · <span>${n>0?n+' system'+(n!==1?'s':'')+' selected':'No systems selected'}</span>`;
+}
+
+function buildStepBar(){
+  document.getElementById('stepBar').innerHTML=STEP_LABELS.map((l,i)=>{
+    const n=i+1,cls=n===cur?'active':n<cur?'done':'';
+    const sep=i<STEP_LABELS.length-1?'<div class="step-sep"></div>':'';
+    return `<div class="step-item"><div class="step-dot ${cls}">${n<cur?'✓':n}</div><span class="step-label ${cls}">${l}</span></div>${sep}`;
+  }).join('');
+}
+
+function updateProg(){document.getElementById('progFill').style.width=((cur-1)/(TOTAL-1)*100)+'%';}
+
+function buildScreen2(){
+  const sysList=[...selSys],has=sysList.filter(s=>SYS_DATA[s]);
+  const funcSys=sysList.filter(s=>['Salesforce','Gong','Outreach','Zendesk Tickets','Zendesk KB','Stripe','Shopify','Jira','GitHub','Marketo Leads','Marketo Programs','X / Twitter','Databricks','Workday','Namely','Okta','Google Directory'].includes(s));
+  const nudgeEl=document.getElementById('nudgeBlock');
+  nudgeEl.innerHTML=funcSys.length===0?`<div class="nudge-block"><div class="nudge-icon">💡</div><div><div class="nudge-text"><strong>Add a function-specific system</strong> to see richer previews. Adding Salesforce, Gong, or Zendesk unlocks more targeted use cases.</div><div class="nudge-chips">${['Salesforce','Gong','Zendesk Tickets','Stripe','Jira'].map(s=>`<div class="nudge-chip" onclick="addFromNudge('${s}')">${s} +</div>`).join('')}</div></div></div>`:'';
+  document.getElementById('previewGrid').innerHTML=has.map(s=>{const d=SYS_DATA[s];return`<div class="preview-card"><div class="prev-name">${s}</div><div class="prev-desc">${d.desc}</div><div class="prev-tools">${d.tools.map(t=>`<span class="prev-tool">${t}</span>`).join('')}</div></div>`;}).join('');
+  document.getElementById('identityBadge').innerHTML=`<strong>One prompt. ${has.length} system${has.length!==1?'s':''} connected. One verified identity.</strong> Your ${selAI.name||'AI client'} invokes each of these through one Workato MCP layer — scoped access, centralized audit logs, and deterministic execution built in.`;
+}
+
+function addFromNudge(name){
+  selSys.add(name);
+  document.querySelectorAll('.sys-chip').forEach(el=>{if(el.textContent===name)el.classList.add('sel');});
+  updateSelStatus();buildScreen2();
+}
+
+
+const LOGO_MAP = {
+  'Microsoft Copilot': `<svg width="22" height="22" style="display:block;" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 48 48"><path d="M34.142 7.325A4.63 4.63 0 0029.7 4H28.35a4.63 4.63 0 00-4.554 3.794L21.48 20.407l.575-1.965a4.63 4.63 0 014.444-3.33h7.853l3.294 1.282 3.175-1.283h-.926a4.63 4.63 0 01-4.443-3.325l-1.31-4.461z" fill="url(#cp_r0)"/><path d="M14.33 40.656A4.63 4.63 0 0018.779 44h2.87a4.63 4.63 0 004.629-4.51l.312-12.163-.654 2.233a4.63 4.63 0 01-4.443 3.329h-7.919l-2.823-1.532-3.057 1.532h.912a4.63 4.63 0 014.447 3.344l1.279 4.423z" fill="url(#cp_r1)"/><path d="M29.5 4H13.46c-4.583 0-7.332 6.057-9.165 12.113C2.123 23.29-.72 32.885 7.503 32.885h6.925a4.63 4.63 0 004.456-3.358 2078.617 2078.617 0 014.971-17.156c.843-2.843 1.544-5.284 2.621-6.805C27.08 4.714 28.086 4 29.5 4z" fill="url(#cp_l2)"/><path d="M29.5 4H13.46c-4.583 0-7.332 6.057-9.165 12.113C2.123 23.29-.72 32.885 7.503 32.885h6.925a4.63 4.63 0 004.456-3.358 2078.617 2078.617 0 014.971-17.156c.843-2.843 1.544-5.284 2.621-6.805C27.08 4.714 28.086 4 29.5 4z" fill="url(#cp_l3)"/><path d="M18.498 44h16.04c4.582 0 7.332-6.058 9.165-12.115 2.171-7.177 5.013-16.775-3.208-16.775h-6.926a4.63 4.63 0 00-4.455 3.358 2084.036 2084.036 0 01-4.972 17.16c-.842 2.843-1.544 5.285-2.62 6.806-.604.852-1.61 1.566-3.024 1.566z" fill="url(#cp_r4)"/><path d="M18.498 44h16.04c4.582 0 7.332-6.058 9.165-12.115 2.171-7.177 5.013-16.775-3.208-16.775h-6.926a4.63 4.63 0 00-4.455 3.358 2084.036 2084.036 0 01-4.972 17.16c-.842 2.843-1.544 5.285-2.62 6.806-.604.852-1.61 1.566-3.024 1.566z" fill="url(#cp_l5)"/><defs><radialGradient id="cp_r0" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="matrix(-10.96051 -13.38922 12.59013 -10.30637 38.005 20.514)"><stop offset=".096" stop-color="#00AEFF"/><stop offset=".773" stop-color="#2253CE"/><stop offset="1" stop-color="#0736C4"/></radialGradient><radialGradient id="cp_r1" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="rotate(51.84 -28.201 27.85) scale(15.9912 15.5119)"><stop stop-color="#FFB657"/><stop offset=".634" stop-color="#FF5F3D"/><stop offset=".923" stop-color="#C02B3C"/></radialGradient><radialGradient id="cp_r4" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="rotate(109.274 16.301 20.802) scale(38.3873 45.9867)"><stop offset=".066" stop-color="#8C48FF"/><stop offset=".5" stop-color="#F2598A"/><stop offset=".896" stop-color="#FFB152"/></radialGradient><linearGradient id="cp_l2" x1="12.5" y1="7.5" x2="14.788" y2="33.975" gradientUnits="userSpaceOnUse"><stop offset=".156" stop-color="#0D91E1"/><stop offset=".487" stop-color="#52B471"/><stop offset=".652" stop-color="#98BD42"/><stop offset=".937" stop-color="#FFC800"/></linearGradient><linearGradient id="cp_l3" x1="14.5" y1="4" x2="15.75" y2="32.885" gradientUnits="userSpaceOnUse"><stop stop-color="#3DCBFF"/><stop offset=".247" stop-color="#0588F7" stop-opacity="0"/></linearGradient><linearGradient id="cp_l5" x1="42.586" y1="13.346" x2="42.569" y2="21.215" gradientUnits="userSpaceOnUse"><stop offset=".058" stop-color="#F8ADFA"/><stop offset=".708" stop-color="#A86EDD" stop-opacity="0"/></linearGradient></defs></svg>`,
+  'ChatGPT': `<svg width="22" height="22" style="display:block;" xmlns="http://www.w3.org/2000/svg" shape-rendering="geometricPrecision" text-rendering="geometricPrecision" image-rendering="optimizeQuality" fill-rule="evenodd" clip-rule="evenodd" viewBox="0 0 512 509.639"><path fill="#fff" d="M115.612 0h280.775C459.974 0 512 52.026 512 115.612v278.415c0 63.587-52.026 115.613-115.613 115.613H115.612C52.026 509.64 0 457.614 0 394.027V115.612C0 52.026 52.026 0 115.612 0z"/><path fill-rule="nonzero" d="M412.037 221.764a90.834 90.834 0 004.648-28.67 90.79 90.79 0 00-12.443-45.87c-16.37-28.496-46.738-46.089-79.605-46.089-6.466 0-12.943.683-19.264 2.04a90.765 90.765 0 00-67.881-30.515h-.576c-.059.002-.149.002-.216.002-39.807 0-75.108 25.686-87.346 63.554-25.626 5.239-47.748 21.31-60.682 44.03a91.873 91.873 0 00-12.407 46.077 91.833 91.833 0 0023.694 61.553 90.802 90.802 0 00-4.649 28.67 90.804 90.804 0 0012.442 45.87c16.369 28.504 46.74 46.087 79.61 46.087a91.81 91.81 0 0019.253-2.04 90.783 90.783 0 0067.887 30.516h.576l.234-.001c39.829 0 75.119-25.686 87.357-63.588 25.626-5.242 47.748-21.312 60.682-44.033a91.718 91.718 0 0012.383-46.035 91.83 91.83 0 00-23.693-61.553l-.004-.005zM275.102 413.161h-.094a68.146 68.146 0 01-43.611-15.8 56.936 56.936 0 002.155-1.221l72.54-41.901a11.799 11.799 0 005.962-10.251V241.651l30.661 17.704c.326.163.55.479.596.84v84.693c-.042 37.653-30.554 68.198-68.21 68.273h.001zm-146.689-62.649a68.128 68.128 0 01-9.152-34.085c0-3.904.341-7.817 1.005-11.663.539.323 1.48.897 2.155 1.285l72.54 41.901a11.832 11.832 0 0011.918-.002l88.563-51.137v35.408a1.1 1.1 0 01-.438.94l-73.33 42.339a68.43 68.43 0 01-34.11 9.12 68.359 68.359 0 01-59.15-34.11l-.001.004zm-19.083-158.36a68.044 68.044 0 0135.538-29.934c0 .625-.036 1.731-.036 2.5v83.801l-.001.07a11.79 11.79 0 005.954 10.242l88.564 51.13-30.661 17.704a1.096 1.096 0 01-1.034.093l-73.337-42.375a68.36 68.36 0 01-34.095-59.143 68.412 68.412 0 019.112-34.085l-.004-.003zm251.907 58.621l-88.563-51.137 30.661-17.697a1.097 1.097 0 011.034-.094l73.337 42.339c21.109 12.195 34.132 34.746 34.132 59.132 0 28.604-17.849 54.199-44.686 64.078v-86.308c.004-.032.004-.065.004-.096 0-4.219-2.261-8.119-5.919-10.217zm30.518-45.93c-.539-.331-1.48-.898-2.155-1.286l-72.54-41.901a11.842 11.842 0 00-5.958-1.611c-2.092 0-4.15.558-5.957 1.611l-88.564 51.137v-35.408l-.001-.061a1.1 1.1 0 01.44-.88l73.33-42.303a68.301 68.301 0 0134.108-9.129c37.704 0 68.281 30.577 68.281 68.281a68.69 68.69 0 01-.984 11.545v.005zm-191.843 63.109l-30.668-17.704a1.09 1.09 0 01-.596-.84v-84.692c.016-37.685 30.593-68.236 68.281-68.236a68.332 68.332 0 0143.689 15.804 63.09 63.09 0 00-2.155 1.222l-72.54 41.9a11.794 11.794 0 00-5.961 10.248v.068l-.05 102.23zm16.655-35.91l39.445-22.782 39.444 22.767v45.55l-39.444 22.767-39.445-22.767v-45.535z"/></svg>`,
+  'Claude': `<svg width="22" height="22" style="display:block;" xmlns="http://www.w3.org/2000/svg" shape-rendering="geometricPrecision" text-rendering="geometricPrecision" image-rendering="optimizeQuality" fill-rule="evenodd" clip-rule="evenodd" viewBox="0 0 512 509.64"><path fill="#D77655" d="M115.612 0h280.775C459.974 0 512 52.026 512 115.612v278.415c0 63.587-52.026 115.612-115.613 115.612H115.612C52.026 509.639 0 457.614 0 394.027V115.612C0 52.026 52.026 0 115.612 0z"/><path fill="#FCF2EE" fill-rule="nonzero" d="M142.27 316.619l73.655-41.326 1.238-3.589-1.238-1.996-3.589-.001-12.31-.759-42.084-1.138-36.498-1.516-35.361-1.896-8.897-1.895-8.34-10.995.859-5.484 7.482-5.03 10.717.935 23.683 1.617 35.537 2.452 25.782 1.517 38.193 3.968h6.064l.86-2.451-2.073-1.517-1.618-1.517-36.776-24.922-39.81-26.338-20.852-15.166-11.273-7.683-5.687-7.204-2.451-15.721 10.237-11.273 13.75.935 3.513.936 13.928 10.716 29.749 23.027 38.848 28.612 5.687 4.727 2.275-1.617.278-1.138-2.553-4.271-21.13-38.193-22.546-38.848-10.035-16.101-2.654-9.655c-.935-3.968-1.617-7.304-1.617-11.374l11.652-15.823 6.445-2.073 15.545 2.073 6.547 5.687 9.655 22.092 15.646 34.78 24.265 47.291 7.103 14.028 3.791 12.992 1.416 3.968 2.449-.001v-2.275l1.997-26.641 3.69-32.707 3.589-42.084 1.239-11.854 5.863-14.206 11.652-7.683 9.099 4.348 7.482 10.716-1.036 6.926-4.449 28.915-8.72 45.294-5.687 30.331h3.313l3.792-3.791 15.342-20.372 25.782-32.227 11.374-12.789 13.27-14.129 8.517-6.724 16.1-.001 11.854 17.617-5.307 18.199-16.581 21.029-13.75 17.819-19.716 26.54-12.309 21.231 1.138 1.694 2.932-.278 44.536-9.479 24.062-4.347 28.714-4.928 12.992 6.066 1.416 6.167-5.106 12.613-30.71 7.583-36.018 7.204-53.636 12.689-.657.48.758.935 24.164 2.275 10.337.556h25.301l47.114 3.514 12.309 8.139 7.381 9.959-1.238 7.583-18.957 9.655-25.579-6.066-59.702-14.205-20.474-5.106-2.83-.001v1.694l17.061 16.682 31.266 28.233 39.152 36.397 1.997 8.999-5.03 7.102-5.307-.758-34.401-25.883-13.27-11.651-30.053-25.302-1.996-.001v2.654l6.926 10.136 36.574 54.975 1.895 16.859-2.653 5.485-9.479 3.311-10.414-1.895-21.408-30.054-22.092-33.844-17.819-30.331-2.173 1.238-10.515 113.261-4.929 5.788-11.374 4.348-9.478-7.204-5.03-11.652 5.03-23.027 6.066-30.052 4.928-23.886 4.449-29.674 2.654-9.858-.177-.657-2.173.278-22.37 30.71-34.021 45.977-26.919 28.815-6.445 2.553-11.173-5.789 1.037-10.337 6.243-9.2 37.257-47.392 22.47-29.371 14.508-16.961-.101-2.451h-.859l-98.954 64.251-17.618 2.275-7.583-7.103.936-11.652 3.589-3.791 29.749-20.474-.101.102.024.101z"/></svg>`,
+  'Gemini': `<svg width="22" height="22" style="display:block;" fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 65 65"><mask id="gemini_mask_chat" style="mask-type:alpha" maskUnits="userSpaceOnUse" x="0" y="0" width="65" height="65"><path d="M32.447 0c.68 0 1.273.465 1.439 1.125a38.904 38.904 0 001.999 5.905c2.152 5 5.105 9.376 8.854 13.125 3.751 3.75 8.126 6.703 13.125 8.855a38.98 38.98 0 005.906 1.999c.66.166 1.124.758 1.124 1.438 0 .68-.464 1.273-1.125 1.439a38.902 38.902 0 00-5.905 1.999c-5 2.152-9.375 5.105-13.125 8.854-3.749 3.751-6.702 8.126-8.854 13.125a38.973 38.973 0 00-2 5.906 1.485 1.485 0 01-1.438 1.124c-.68 0-1.272-.464-1.438-1.125a38.913 38.913 0 00-2-5.905c-2.151-5-5.103-9.375-8.854-13.125-3.75-3.749-8.125-6.702-13.125-8.854a38.973 38.973 0 00-5.905-2A1.485 1.485 0 010 32.448c0-.68.465-1.272 1.125-1.438a38.903 38.903 0 005.905-2c5-2.151 9.376-5.104 13.125-8.854 3.75-3.749 6.703-8.125 8.855-13.125a38.972 38.972 0 001.999-5.905A1.485 1.485 0 0132.447 0z" fill="#000"/><path d="M32.447 0c.68 0 1.273.465 1.439 1.125a38.904 38.904 0 001.999 5.905c2.152 5 5.105 9.376 8.854 13.125 3.751 3.75 8.126 6.703 13.125 8.855a38.98 38.98 0 005.906 1.999c.66.166 1.124.758 1.124 1.438 0 .68-.464 1.273-1.125 1.439a38.902 38.902 0 00-5.905 1.999c-5 2.152-9.375 5.105-13.125 8.854-3.749 3.751-6.702 8.126-8.854 13.125a38.973 38.973 0 00-2 5.906 1.485 1.485 0 01-1.438 1.124c-.68 0-1.272-.464-1.438-1.125a38.913 38.913 0 00-2-5.905c-2.151-5-5.103-9.375-8.854-13.125-3.75-3.749-8.125-6.702-13.125-8.854a38.973 38.973 0 00-5.905-2A1.485 1.485 0 010 32.448c0-.68.465-1.272 1.125-1.438a38.903 38.903 0 005.905-2c5-2.151 9.376-5.104 13.125-8.854 3.75-3.749 6.703-8.125 8.855-13.125a38.972 38.972 0 001.999-5.905A1.485 1.485 0 0132.447 0z" fill="url(#glin0)"/></mask><g mask="url(#gemini_mask_chat)"><g filter="url(#gf0)"><path d="M-5.859 50.734c7.498 2.663 16.116-2.33 19.249-11.152 3.133-8.821-.406-18.131-7.904-20.794-7.498-2.663-16.116 2.33-19.25 11.151-3.132 8.822.407 18.132 7.905 20.795z" fill="#FFE432"/></g><g filter="url(#gf1)"><path d="M27.433 21.649c10.3 0 18.651-8.535 18.651-19.062 0-10.528-8.35-19.062-18.651-19.062S8.78-7.94 8.78 2.587c0 10.527 8.35 19.062 18.652 19.062z" fill="#FC413D"/></g><g filter="url(#gf2)"><path d="M20.184 82.608c10.753-.525 18.918-12.244 18.237-26.174-.68-13.93-9.95-24.797-20.703-24.271C6.965 32.689-1.2 44.407-.519 58.337c.681 13.93 9.95 24.797 20.703 24.271z" fill="#00B95C"/></g><g filter="url(#gf3)"><path d="M20.184 82.608c10.753-.525 18.918-12.244 18.237-26.174-.68-13.93-9.95-24.797-20.703-24.271C6.965 32.689-1.2 44.407-.519 58.337c.681 13.93 9.95 24.797 20.703 24.271z" fill="#00B95C"/></g><g filter="url(#gf4)"><path d="M30.954 74.181c9.014-5.485 11.427-17.976 5.389-27.9-6.038-9.925-18.241-13.524-27.256-8.04-9.015 5.486-11.428 17.977-5.39 27.902 6.04 9.924 18.242 13.523 27.257 8.038z" fill="#00B95C"/></g><g filter="url(#gf5)"><path d="M67.391 42.993c10.132 0 18.346-7.91 18.346-17.666 0-9.757-8.214-17.667-18.346-17.667s-18.346 7.91-18.346 17.667c0 9.757 8.214 17.666 18.346 17.666z" fill="#3186FF"/></g><g filter="url(#gf6)"><path d="M-13.065 40.944c9.33 7.094 22.959 4.869 30.442-4.972 7.483-9.84 5.987-23.569-3.343-30.663C4.704-1.786-8.924.439-16.408 10.28c-7.483 9.84-5.986 23.57 3.343 30.664z" fill="#FBBC04"/></g><g filter="url(#gf7)"><path d="M34.74 51.43c11.135 7.656 25.896 5.524 32.968-4.764 7.073-10.287 3.779-24.832-7.357-32.488C49.215 6.52 34.455 8.654 27.382 18.94c-7.072 10.288-3.779 24.833 7.357 32.49z" fill="#3186FF"/></g><g filter="url(#gf8)"><path d="M54.984-2.336c2.833 3.852-.808 11.34-8.131 16.727-7.324 5.387-15.557 6.631-18.39 2.78-2.833-3.853.807-11.342 8.13-16.728 7.324-5.387 15.558-6.631 18.39-2.78z" fill="#749BFF"/></g><g filter="url(#gf9)"><path d="M31.727 16.104C43.053 5.598 46.94-8.626 40.41-15.666c-6.53-7.04-21.006-4.232-32.332 6.274s-15.214 24.73-8.683 31.77c6.53 7.04 21.006 4.232 32.332-6.274z" fill="#FC413D"/></g><g filter="url(#gf10)"><path d="M8.51 53.838c6.732 4.818 14.46 5.55 17.262 1.636 2.802-3.915-.384-10.994-7.116-15.812-6.731-4.818-14.46-5.55-17.261-1.636-2.802 3.915.383 10.994 7.115 15.812z" fill="#FFEE48"/></g></g><defs><filter id="gf0" x="-19.824" y="13.152" width="39.274" height="43.217" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB"><feFlood flood-opacity="0" result="BackgroundImageFix"/><feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape"/><feGaussianBlur stdDeviation="2.46" result="effect1_foregroundBlur_2001_67"/></filter><filter id="gf1" x="-15.001" y="-40.257" width="84.868" height="85.688" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB"><feFlood flood-opacity="0" result="BackgroundImageFix"/><feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape"/><feGaussianBlur stdDeviation="11.891" result="effect1_foregroundBlur_2001_67"/></filter><filter id="gf2" x="-20.776" y="11.927" width="79.454" height="90.916" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB"><feFlood flood-opacity="0" result="BackgroundImageFix"/><feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape"/><feGaussianBlur stdDeviation="10.109" result="effect1_foregroundBlur_2001_67"/></filter><filter id="gf3" x="-20.776" y="11.927" width="79.454" height="90.916" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB"><feFlood flood-opacity="0" result="BackgroundImageFix"/><feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape"/><feGaussianBlur stdDeviation="10.109" result="effect1_foregroundBlur_2001_67"/></filter><filter id="gf4" x="-19.845" y="15.459" width="79.731" height="81.505" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB"><feFlood flood-opacity="0" result="BackgroundImageFix"/><feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape"/><feGaussianBlur stdDeviation="10.109" result="effect1_foregroundBlur_2001_67"/></filter><filter id="gf5" x="29.832" y="-11.552" width="75.117" height="73.758" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB"><feFlood flood-opacity="0" result="BackgroundImageFix"/><feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape"/><feGaussianBlur stdDeviation="9.606" result="effect1_foregroundBlur_2001_67"/></filter><filter id="gf6" x="-38.583" y="-16.253" width="78.135" height="78.758" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB"><feFlood flood-opacity="0" result="BackgroundImageFix"/><feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape"/><feGaussianBlur stdDeviation="8.706" result="effect1_foregroundBlur_2001_67"/></filter><filter id="gf7" x="8.107" y="-5.966" width="78.877" height="77.539" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB"><feFlood flood-opacity="0" result="BackgroundImageFix"/><feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape"/><feGaussianBlur stdDeviation="7.775" result="effect1_foregroundBlur_2001_67"/></filter><filter id="gf8" x="13.587" y="-18.488" width="56.272" height="51.81" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB"><feFlood flood-opacity="0" result="BackgroundImageFix"/><feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape"/><feGaussianBlur stdDeviation="6.957" result="effect1_foregroundBlur_2001_67"/></filter><filter id="gf9" x="-15.526" y="-31.297" width="70.856" height="69.306" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB"><feFlood flood-opacity="0" result="BackgroundImageFix"/><feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape"/><feGaussianBlur stdDeviation="5.876" result="effect1_foregroundBlur_2001_67"/></filter><filter id="gf10" x="-14.168" y="20.964" width="55.501" height="51.571" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB"><feFlood flood-opacity="0" result="BackgroundImageFix"/><feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape"/><feGaussianBlur stdDeviation="7.273" result="effect1_foregroundBlur_2001_67"/></filter><linearGradient id="glin0" x1="18.447" y1="43.42" x2="52.153" y2="15.004" gradientUnits="userSpaceOnUse"><stop stop-color="#4893FC"/><stop offset=".27" stop-color="#4893FC"/><stop offset=".777" stop-color="#969DFF"/><stop offset="1" stop-color="#BD99FE"/></linearGradient></defs></svg>`,
+};
+let _logoCounter = 0;
+function getChatLogo(name, bg, color, abbr){
+  const svg = LOGO_MAP[name];
+  if(svg){
+    // Stamp unique IDs so defs don't conflict when rendered twice
+    const uid = 'lg'+(++_logoCounter);
+    const uniqueSvg = svg
+      .replace(/id="cp_r0"/g,`id="${uid}_r0"`).replace(/url\(#cp_r0\)/g,`url(#${uid}_r0)`)
+      .replace(/id="cp_r1"/g,`id="${uid}_r1"`).replace(/url\(#cp_r1\)/g,`url(#${uid}_r1)`)
+      .replace(/id="cp_l2"/g,`id="${uid}_l2"`).replace(/url\(#cp_l2\)/g,`url(#${uid}_l2)`)
+      .replace(/id="cp_l3"/g,`id="${uid}_l3"`).replace(/url\(#cp_l3\)/g,`url(#${uid}_l3)`)
+      .replace(/id="cp_r4"/g,`id="${uid}_r4"`).replace(/url\(#cp_r4\)/g,`url(#${uid}_r4)`)
+      .replace(/id="cp_l5"/g,`id="${uid}_l5"`).replace(/url\(#cp_l5\)/g,`url(#${uid}_l5)`)
+      .replace(/id="gemini_mask_chat"/g,`id="${uid}_gm"`).replace(/url\(#gemini_mask_chat\)/g,`url(#${uid}_gm)`)
+      .replace(/mask="url\(#gemini_mask_chat\)"/g,`mask="url(#${uid}_gm)"`)
+      .replace(/id="gf(\d+)"/g,(m,n)=>`id="${uid}_gf${n}"`).replace(/url\(#gf(\d+)\)/g,(m,n)=>`url(#${uid}_gf${n})`)
+      .replace(/id="glin0"/g,`id="${uid}_gl0"`).replace(/url\(#glin0\)/g,`url(#${uid}_gl0)`);
+    return `<div style="width:26px;height:26px;border-radius:6px;overflow:hidden;display:flex;align-items:center;justify-content:center;">${uniqueSvg}</div>`;
+  }
+  return `<div class="chat-ai-icon" style="background:${bg};color:${color};">${abbr}</div>`;
+}
+
+// Returns the comm system the user selected, for weaving into scenario responses
+function getCommSystem(keys){
+  if(keys.includes('Slack')) return 'Slack';
+  if(keys.includes('Gmail')) return 'Gmail';
+  if(keys.includes('Outlook Email')) return 'Outlook Email';
+  return null;
+}
+
+function getGenericResponse(keys){
+  const swapCta = `<div class="swap-cta-inline"><div class="swap-cta-text">See what Workato Enterprise MCP does differently.<span>Same prompt. Scoped to you. Every action logged.</span></div><button class="swap-btn-inline" onclick="showWorkato()">Swap in Workato Enterprise MCP →</button></div>`;
+  const comm = getCommSystem(keys);
+  const commNote = comm ? ` &nbsp;<span style="color:#b45309;font-size:10px;font-style:italic;">${comm} notification sent — unscoped, unlogged</span>` : '';
+
+  if(keys.includes('Workday')||keys.includes('Namely')){
+    return `<p>Here's what I found across HR systems:</p>
+<p>• <strong>Sarah Chen</strong> — 12 days PTO remaining &nbsp;<span style="color:#b45309;font-size:10px;font-style:italic;">Not your profile</span><br>
+• <strong>James Park</strong> — 3 pending approvals, 8 days remaining &nbsp;<span style="color:#b45309;font-size:10px;font-style:italic;">Not your profile</span><br>
+• <strong>Marcus Webb</strong> — PTO request pending manager review &nbsp;<span style="color:#b45309;font-size:10px;font-style:italic;">Not your profile</span><br>
+• <strong>Dana Scully</strong> — 0 days remaining, 2 overdue approvals &nbsp;<span style="color:#b45309;font-size:10px;font-style:italic;">Not your profile</span></p>
+<p style="color:#b45309;font-size:11px;font-style:italic;margin-top:6px;">⚠️ Full org-wide employee data returned — not scoped to your profile. Approvals across all managers returned. None of this access was logged.</p>${swapCta}`;
+  }
+  if(keys.includes('Okta')||keys.includes('Google Directory')){
+    return `<p>Here's what I found across identity systems:</p>
+<p>• <strong>sarah.chen@company.com</strong> — 14 app assignments &nbsp;<span style="color:#b45309;font-size:10px;font-style:italic;">Not your team</span><br>
+• <strong>james.park@company.com</strong> — access pending review &nbsp;<span style="color:#b45309;font-size:10px;font-style:italic;">Not your team</span><br>
+• <strong>Full directory</strong> — 847 users returned org-wide &nbsp;<span style="color:#b45309;font-size:10px;font-style:italic;">No scope filter applied</span></p>
+<p style="color:#b45309;font-size:11px;font-style:italic;margin-top:6px;">⚠️ Org-wide directory returned — not scoped to your team. Actions unattributable to any user. None of this access was logged.</p>${swapCta}`;
+  }
+  if(keys.includes('Google Calendar')||keys.includes('Outlook Calendar')||keys.includes('Zoom')){
+    return `<p>Here's what I found across calendar and meeting systems:</p>
+<p>• <strong>Calendar events returned</strong> for all users in org &nbsp;<span style="color:#b45309;font-size:10px;font-style:italic;">Not scoped to you</span><br>
+• <strong>Zoom recordings accessed</strong> — full meeting content, all attendees &nbsp;<span style="color:#b45309;font-size:10px;font-style:italic;">No attendee scope</span><br>
+• <strong>Meeting created</strong> on behalf of exec team &nbsp;<span style="color:#b45309;font-size:10px;font-style:italic;">No identity verification</span></p>
+<p style="color:#b45309;font-size:11px;font-style:italic;margin-top:6px;">⚠️ Calendar writes executed without confirmation. Recordings accessed beyond permitted scope. No action was logged.</p>${swapCta}`;
+  }
+  if(keys.includes('Confluence')||keys.includes('Google Docs')||keys.includes('Google Drive')||keys.includes('OneDrive')){
+    return `<p>Here's what I found across knowledge and document systems:</p>
+<p>• <strong>482 pages returned</strong> across all Confluence spaces &nbsp;<span style="color:#b45309;font-size:10px;font-style:italic;">No space filter applied</span><br>
+• <strong>Drive files listed</strong> — shared drives and all-org folders included &nbsp;<span style="color:#b45309;font-size:10px;font-style:italic;">Beyond your permissions</span><br>
+• <strong>Document updated</strong> without version snapshot &nbsp;<span style="color:#b45309;font-size:10px;font-style:italic;">Unattributable write</span></p>
+<p style="color:#b45309;font-size:11px;font-style:italic;margin-top:6px;">⚠️ Org-wide content returned — not scoped to your team's spaces. Document writes are unattributable. No audit trail generated.</p>${swapCta}`;
+  }
+  if(keys.includes('Jira')||keys.includes('GitHub')){
+    return `<p>Here's what I found across engineering systems:</p>
+<p>• <strong>All open Jira issues</strong> returned org-wide — 214 issues &nbsp;<span style="color:#b45309;font-size:10px;font-style:italic;">Not scoped to your sprint</span><br>
+• <strong>GitHub PRs listed</strong> — all repos, all assignees &nbsp;<span style="color:#b45309;font-size:10px;font-style:italic;">Not scoped to your team</span><br>
+• <strong>Issue transitioned</strong> without workflow check &nbsp;<span style="color:#b45309;font-size:10px;font-style:italic;">No approval step</span></p>
+<p style="color:#b45309;font-size:11px;font-style:italic;margin-top:6px;">⚠️ Org-wide issue data returned — not scoped to active sprint or your team. Transitions executed without attribution. No audit log generated.</p>${swapCta}`;
+  }
+  if(keys.includes('Google Sheets')||keys.includes('Excel')||keys.includes('Airtable')){
+    return `<p>Here's what I found across spreadsheet and data systems:</p>
+<p>• <strong>Full workbook returned</strong> — all sheets, all rows &nbsp;<span style="color:#b45309;font-size:10px;font-style:italic;">No range scoping applied</span><br>
+• <strong>Rows appended</strong> to shared Airtable base &nbsp;<span style="color:#b45309;font-size:10px;font-style:italic;">No identity on write</span><br>
+• <strong>Data from adjacent tables</strong> returned without filter &nbsp;<span style="color:#b45309;font-size:10px;font-style:italic;">Schema not enforced</span></p>
+<p style="color:#b45309;font-size:11px;font-style:italic;margin-top:6px;">⚠️ Full workbook content returned without field scoping. Writes executed without user attribution. No audit trail generated.</p>${swapCta}`;
+  }
+  if(keys.includes('Marketo Leads')||keys.includes('Marketo Programs')||keys.includes('X / Twitter')){
+    return `<p>Here's what I found across marketing systems:</p>
+<p>• <strong>All leads returned</strong> — org-wide, not scoped to your programs &nbsp;<span style="color:#b45309;font-size:10px;font-style:italic;">No list filter applied</span><br>
+• <strong>Campaign activated</strong> without approval step &nbsp;<span style="color:#b45309;font-size:10px;font-style:italic;">Live send — no review</span><br>
+• <strong>Tweets posted</strong> on brand account without confirmation &nbsp;<span style="color:#b45309;font-size:10px;font-style:italic;">No draft-first enforcement</span></p>
+<p style="color:#b45309;font-size:11px;font-style:italic;margin-top:6px;">⚠️ Campaign triggered without human approval. Brand account acted on directly. No audit trail generated.</p>${swapCta}`;
+  }
+  if(keys.includes('Shopify')){
+    return `<p>Here's what I found across commerce systems:</p>
+<p>• <strong>All open orders returned</strong> — full order history, all customers &nbsp;<span style="color:#b45309;font-size:10px;font-style:italic;">No fulfillment filter</span><br>
+• <strong>Order cancelled</strong> without confirmation &nbsp;<span style="color:#b45309;font-size:10px;font-style:italic;">No approval step</span><br>
+• <strong>Customer data exposed</strong> — PII in raw payload &nbsp;<span style="color:#b45309;font-size:10px;font-style:italic;">No field scoping</span></p>
+<p style="color:#b45309;font-size:11px;font-style:italic;margin-top:6px;">⚠️ Full customer PII returned without field masking. Order writes executed without confirmation. No audit trail generated.</p>${swapCta}`;
+  }
+  if(keys.includes('Databricks')){
+    return `<p>Here's what I found across data systems:</p>
+<p>• <strong>Query executed</strong> against production catalog — full table access &nbsp;<span style="color:#b45309;font-size:10px;font-style:italic;">No catalog scoping</span><br>
+• <strong>Schema returned</strong> — all tables, including restricted datasets &nbsp;<span style="color:#b45309;font-size:10px;font-style:italic;">Beyond your permissions</span><br>
+• <strong>Results returned</strong> include PII columns &nbsp;<span style="color:#b45309;font-size:10px;font-style:italic;">No column masking</span></p>
+<p style="color:#b45309;font-size:11px;font-style:italic;margin-top:6px;">⚠️ Production data queried without catalog scope enforcement. PII columns returned unmasked. No query was logged.</p>${swapCta}`;
+  }
+  if(keys.includes('Outreach')){
+    return `<p>Here's what I found across sales engagement systems:</p>
+<p>• <strong>All prospects returned</strong> — org-wide, not scoped to your sequences &nbsp;<span style="color:#b45309;font-size:10px;font-style:italic;">Not your book</span><br>
+• <strong>Prospect enrolled</strong> in sequence without owner check &nbsp;<span style="color:#b45309;font-size:10px;font-style:italic;">No ownership validation</span><br>
+• <strong>Sequence steps updated</strong> across shared templates &nbsp;<span style="color:#b45309;font-size:10px;font-style:italic;">Unattributable change</span></p>
+<p style="color:#b45309;font-size:11px;font-style:italic;margin-top:6px;">⚠️ Org-wide prospect data returned — not scoped to your sequences. Enrollment executed without identity check. No audit trail generated.</p>${swapCta}`;
+  }
+  // Salesforce (solo or with Gong)
+  return `<p>Here's what I found across your systems:</p>
+<p>• <strong>Acme Corp</strong> — $2.1M open opp, Stage: Negotiation &nbsp;<span style="color:#b45309;font-size:10px;font-style:italic;">Owner: Sarah Chen</span><br>
+• <strong>Globex Inc</strong> — $840K renewal due in 18 days &nbsp;<span style="color:#b45309;font-size:10px;font-style:italic;">Owner: Marcus Webb</span><br>
+• <strong>Initech</strong> — $420K, last activity 31 days ago &nbsp;<span style="color:#b45309;font-size:10px;font-style:italic;">Owner: James Park</span><br>
+• <strong>Umbrella Corp</strong> — $1.2M, 3 overdue tasks &nbsp;<span style="color:#b45309;font-size:10px;font-style:italic;">Owner: Dana Scully</span></p>
+<p style="color:#b45309;font-size:11px;font-style:italic;margin-top:6px;">⚠️ 47 records returned across all owners org-wide — not scoped to your accounts. None of this access was logged.</p>${swapCta}`;
+}
+
+function getWinResponse(keys){
+  const comm = getCommSystem(keys);
+  if(keys.includes('Workday')||keys.includes('Namely')){
+    return `<p><strong>HR · PTO &amp; approvals summary</strong></p>
+<p>PTO balance retrieved from Workday under your verified identity: <strong>12 days remaining</strong> for the current period. Your direct manager (Sarah Chen) is set as the required approver.</p>
+<p>One pending approval in your queue: James Park submitted a 3-day request for next week. Flagged for your review with the standard approval note pre-filled.${comm ? ` <strong>${comm} message drafted to Sarah Chen</strong> — sent under your verified identity.` : ''}</p>
+<p><strong>All data scoped to your profile and direct reports only. Every action logged with your identity.</strong></p>`;
+  }
+  if(keys.includes('Okta')||keys.includes('Google Directory')){
+    return `<p><strong>Identity &amp; access summary</strong></p>
+<p>3 access requests pending — all scoped to your team. Two new hires need Salesforce and Confluence provisioned. One offboarding requires deprovisioning from 4 apps before end of week.${comm ? ` <strong>${comm} notification drafted to IT ops</strong> with the deprovisioning checklist — sent under your verified identity.` : ''}</p>
+<p><strong>All actions scoped to your directory permissions. Every change logged with your identity and timestamp.</strong></p>`;
+  }
+  if(keys.includes('Salesforce')&&keys.includes('Gong')){
+    return `<p><strong>Pipeline summary · your accounts</strong></p>
+<p>4 open opportunities flagged at risk: Acme Corp (no activity 18 days, legal review pending), Initech (competitor mentioned on last call), Globex (renewal in 22 days, unresolved P2 ticket).${comm ? ` <strong>Follow-up ${comm==='Slack'?'message':'email'} drafted for each flagged account</strong> — sent under your verified identity.` : ''}</p>
+<p>Last calls retrieved and synthesized. Next steps logged to Salesforce automatically where available.</p>
+<p><strong>All records scoped to your territory — 4 accounts, not 47. Every action logged.</strong></p>`;
+  }
+  if(keys.includes('Zendesk Tickets')){
+    return `<p><strong>Support queue · your accounts</strong></p>
+<p>6 open tickets across 4 accounts. 1 unowned P2 (Horizon Logistics, 14 days open) flagged as highest priority — renewal in 4 months. Draft escalation created, ticket updated.${comm ? ` <strong>${comm} summary posted to #csm-escalations</strong> with renewal context — sent under your verified identity.` : ''}</p>
+<p><strong>Tickets scoped to your accounts only. Every action logged with your identity.</strong></p>`;
+  }
+  if(keys.includes('Stripe')){
+    return `<p><strong>Billing exceptions · this week</strong></p>
+<p>2 exceptions overlap with active renewals: Initech ($12,400 failed payment, renewal in 22 days) and Acme Corp ($4,200 dispute, renewal in 45 days). Salesforce tasks created for both CSM owners.${comm ? ` <strong>Direct ${comm} alerts sent to each CSM</strong> with account, exception type, ARR, and days to renewal.` : ''}</p>
+<p><strong>Data scoped to finance role. Every read and write logged for SOX compliance.</strong></p>`;
+  }
+  if(keys.includes('Shopify')){
+    return `<p><strong>Commerce · unfulfilled orders</strong></p>
+<p>7 orders unfulfilled past 48 hours — 3 at SLA risk today. Highest priority: Order #4821 ($1,240, express shipping, due today). Fulfillment status updated.${comm ? ` <strong>Customer notification drafted in ${comm}</strong> — sent under your verified identity.` : ''}</p>
+<p><strong>Orders scoped to your fulfillment queue. Customer PII masked. Every action logged.</strong></p>`;
+  }
+  if(keys.includes('Google Calendar')||keys.includes('Outlook Calendar')||keys.includes('Zoom')){
+    return `<p><strong>Calendar &amp; meetings · this week</strong></p>
+<p>3 back-to-back conflicts identified — 1 resolved by shortening a recurring sync. 2 key meetings flagged with prep context pulled from Zoom transcripts. 4 open blocks identified for focused work.${comm ? ` <strong>Prep briefs drafted as ${comm==='Slack'?'Slack DMs':'emails'}</strong> to relevant attendees — sent under your verified identity.` : ''}</p>
+<p><strong>Scoped to your calendar only. Zoom transcripts scoped to your attendee permissions. No writes without your confirmation.</strong></p>`;
+  }
+  if(keys.includes('Confluence')||keys.includes('Google Docs')||keys.includes('Google Drive')||keys.includes('OneDrive')){
+    return `<p><strong>Knowledge &amp; documents · Q3 roadmap</strong></p>
+<p>Latest roadmap doc found in Product space (updated 3 days ago). Key decisions: 2 features deferred to Q4, 1 partnership integration accelerated. Open questions: enterprise pricing model and API rate limit architecture unresolved.${comm ? ` <strong>Summary drafted as a ${comm==='Slack'?'Slack message':'email'}</strong> to your team — sent under your verified identity.` : ''}</p>
+<p><strong>Scoped to your team's spaces. Read action logged with timestamp.</strong></p>`;
+  }
+  if(keys.includes('Jira')||keys.includes('GitHub')){
+    return `<p><strong>Engineering · sprint blockers</strong></p>
+<p>2 active blockers: auth service dependency (Platform team, flagged 3 days ago) and a flaky E2E test blocking a PR merge. 1 PR needs your review today.${comm ? ` <strong>${comm} thread started in #eng-blockers</strong> tagging the Platform team — posted under your identity.` : ''}</p>
+<p><strong>Issues scoped to your sprint and team. Transitions require your confirmation. Every action logged.</strong></p>`;
+  }
+  if(keys.includes('Google Sheets')||keys.includes('Excel')||keys.includes('Airtable')){
+    return `<p><strong>Tracking data · plan vs. actuals</strong></p>
+<p>3 items off-plan: Q3 pipeline coverage 14% below target, 2 customer onboarding tasks overdue by 5+ days, 1 contract renewal stalled.${comm ? ` <strong>${comm==='Slack'?'Slack digest':'Email summary'} drafted</strong> to account owners flagging each item — sent under your verified identity.` : ''}</p>
+<p><strong>Scoped to your assigned sheets and range. Writes staged before committing. Every access logged.</strong></p>`;
+  }
+  if(keys.includes('Marketo Leads')||keys.includes('Marketo Programs')||keys.includes('X / Twitter')){
+    return `<p><strong>Marketing · campaign performance</strong></p>
+<p>Active email program running at 22% open rate (above benchmark). 1 nurture sequence below threshold — 3 leads stalled at step 2. X/Twitter brand mentions up 18%; 2 threads flagged for a reply.${comm ? ` <strong>Performance digest drafted in ${comm}</strong> to the campaigns channel — sent under your verified identity.` : ''}</p>
+<p><strong>Data scoped to your program assignments. Campaign activations require confirmation before going live. Every action logged.</strong></p>`;
+  }
+  if(keys.includes('Databricks')){
+    return `<p><strong>Data · usage summary</strong></p>
+<p>3 accounts more than 20% above expected usage — Acme Corp, Globex, and Initech flagged for review. 2 accounts significantly underutilizing contracted capacity.${comm ? ` <strong>Usage alert drafted as a ${comm==='Slack'?'Slack message':'email'}</strong> to the CSM team for each flagged account — sent under your verified identity.` : ''}</p>
+<p><strong>Query scoped to your catalog only. PII columns masked. Logged with your identity and timestamp.</strong></p>`;
+  }
+  if(keys.includes('Outreach')){
+    return `<p><strong>Sales engagement · sequence performance</strong></p>
+<p>2 sequences below 15% engagement: "Q4 Enterprise Re-engage" (12% open, 2% reply) and "Competitive Displacement" (8% open, 0% reply). Recommended: update subject lines, shift send time to Tuesday morning.${comm ? ` <strong>Change summary drafted as a ${comm==='Slack'?'Slack message':'email'}</strong> to your manager — staged for your review.` : ''}</p>
+<p><strong>Sequences scoped to your ownership. Changes staged — not applied until confirmed. Every update logged.</strong></p>`;
+  }
+  return `<p><strong>Summary across your ${keys.length} connected systems</strong></p>
+<p>Here's what I found — called through one Workato MCP layer under your verified identity.</p>
+<p>Every call was scoped to your permissions. Every action is logged.${comm ? ` <strong>${comm} notifications staged</strong> — none sent without your confirmation.` : ''}</p>
+<p><strong>One prompt. One verified identity. One audit trail.</strong></p>`;
+}
+
+function buildScreen3(){
+  const keys=[...selSys].slice(0,4);
+  const useKeys=keys.length>=2?keys:['Salesforce','Slack','Google Calendar'];
+  const aiName=selAI.name||'Your AI client';
+  const aiBg=selAI.iconBg||'#f0f0ff';
+  const aiColor=selAI.iconColor||'#5b5bd6';
+  const aiAbbr=selAI.abbr||'A';
+  const aiSub=selAI.sub||'';
+  const prompt=getSamplePrompt(useKeys);
+
+  // Build exactly 3 amber warning rows — one per governance concern — cycling through selected apps
+  const failRows=FAIL_REASONS.map((reason,i)=>{
+    const sys=useKeys[i%useKeys.length];
+    const slug=sys.toLowerCase().replace(/[\s\/]/g,'_');
+    const actions=SYS_ACTIONS[sys]||['list_records','get_data','search_items'];
+    const action=actions[i%actions.length];
+    return `<div class="tc-warn"><span class="tc-warn-icon">⚠️</span><span><span class="tc-warn-fn">${slug}_mcp.${action}()</span><span class="tc-warn-reason"> — ${reason}</span></span></div>`;
+  }).join('');
+
+  // Win rows — one per selected app (up to 4)
+  const winRows=useKeys.map(sys=>{
+    const slug=sys.toLowerCase().replace(/[\s\/]/g,'_');
+    const suffix=WIN_SUFFIX[sys]||'search(owner=me, scoped=true, audit_logged=true)';
+    return `<div class="tc-good"><div class="tc-good-dot"></div><span class="tc-good-text">${slug}_by_workato.${suffix}</span><span class="tc-good-ok">✓ ok</span></div>`;
+  }).join('');
+
+  const riskCards = `
+    <div class="risk-header"><span class="risk-label">Why Community MCPs create Enterprise Risks</span><span class="risk-sep">·</span><span class="risk-sub">Raw access is not enterprise access.</span></div>
+    <div class="risk-grid">
+      <div class="risk-card"><div class="risk-card-label">Vendor Lock-in by Design</div><div class="risk-card-desc">When your orchestration logic, governance model, and operational patterns are built inside each vendor's native tooling, switching platforms means rebuilding everything. Your integration layer enforces consolidation instead of enabling flexibility.</div></div>
+      <div class="risk-card"><div class="risk-card-label">No Rate Limiting or Traffic Control</div><div class="risk-card-desc">Community MCPs have no central governor. Agents can hammer production APIs without any rate limit, workspace scope filter, or usage ceiling — exposing downstream systems to runaway requests, abuse, and outages at scale.</div></div>
+      <div class="risk-card"><div class="risk-card-label">Unpredictable Automation Loops</div><div class="risk-card-desc">Without a governed workflow layer, agents can pull sensitive records, trigger unauthorized actions, or create compounding error states with no circuit breaker. Bare-metal MCP doesn't fail gracefully — it fails silently and at scale.</div></div>
+    </div>`;
+
+  const egCards = `
+    <div class="section-divider"></div>
+    <div class="eyebrow"><span style="color:rgba(255,255,255,0.4);font-weight:300;">Why</span> <span style="color:var(--teal);font-weight:600;">Workato Enterprise MCP</span><span style="color:rgba(255,255,255,0.4);"> · </span><span style="color:#fff;font-weight:600;">Enterprise-Grade</span><span style="color:rgba(255,255,255,0.4);"> · </span><span style="color:rgba(255,255,255,0.4);font-style:italic;font-weight:300;">Built in, not bolted on</span></div>
+    <div class="eg-grid-race">
+      <div class="eg-card-sm"><div class="eg-label-sm">IDENTITY-AWARE EXECUTION</div><div class="eg-desc-sm">Enforce permissions and perform actions using the identity and permissions of the individual user — not a shared service account. Every action individually attributable.</div></div>
+      <div class="eg-card-sm"><div class="eg-label-sm">DETERMINISTIC EXECUTION</div><div class="eg-desc-sm">Multi-step, multi-system processes run as governed workflows. Sequence enforced. Steps cannot be skipped, reordered, or partially executed.</div></div>
+      <div class="eg-card-sm"><div class="eg-label-sm">CENTRALIZED AUDIT LOGS</div><div class="eg-desc-sm">Centralized job history with full execution context — user, action, timestamp, inputs and outputs in one place. Real-time monitoring. SIEM export ready.</div></div>
+    </div>`;
+
+  document.getElementById('raceContent').innerHTML=`
+    <div id="viewGeneric">
+      ${riskCards}
+      <div class="section-divider"></div>
+      <div class="tool-pill"><div class="tool-pill-dot" style="background:var(--amber);"></div>Tool in use: <strong>Community MCPs — one per system</strong></div>
+      <div class="chat-shell">
+        <div class="chat-top">
+          <div class="chat-ai-badge">${getChatLogo(aiName,aiBg,aiColor,aiAbbr)}<span class="chat-ai-name">${aiName}</span></div>
+          <span class="chat-model-badge">${aiSub}</span>
+        </div>
+        <div class="chat-body">
+          <div id="f2Bubble" style="opacity:0;transform:translateY(8px);">
+            <div class="msg-user">${prompt}</div>
+          </div>
+          <div id="f2Typing" style="opacity:0;">
+            <div class="typing-dots"><span></span><span></span><span></span></div>
+          </div>
+          <div id="f2MCPLayer" style="opacity:0;">
+            <div class="mcp-layer-chat">
+              <div class="mcp-path-chat" id="f2FlowTag">
+                <span class="mcp-node-chat">${aiName}</span><span class="mcp-arrow-chat">→</span><span class="mcp-node-chat bad">community MCPs</span>
+              </div>
+              <div id="f2ToolWrap"></div>
+            </div>
+          </div>
+          <div id="f2Response" style="opacity:0;">
+            <div class="msg-ai-chat">${getGenericResponse(useKeys)}</div>
+          </div>
+        </div>
+        <div class="chat-input-bar"><span class="chat-input-text">Reply to ${aiName}...</span><div class="chat-send-btn"><svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 8L8 5L2 2V4.5L6 5L2 5.5V8Z" fill="#fff"/></svg></div></div>
+      </div>
+      <div class="result-card result-bad">
+        <div class="res-icon bad">✕</div>
+        <div>
+          <div class="res-title">Where this falls apart.</div>
+          <div class="res-desc">No governance means no production. Every community MCP is a separate trust decision — different credentials, different schemas, no shared audit trail. Your CISO can't approve it. Your compliance team can't trace it. And when something goes wrong, there's no job history to investigate.</div>
+        </div>
+      </div>
+    </div>
+
+    <div id="viewWorkato" style="display:none;">
+      ${egCards}
+      <div class="section-divider"></div>
+      <div class="tool-pill"><div class="tool-pill-dot" style="background:var(--teal);"></div>Tool in use: <strong>Workato Enterprise MCP · one verified identity</strong></div>
+      <div class="chat-shell">
+        <div class="chat-top">
+          <div class="chat-ai-badge">${getChatLogo(aiName,aiBg,aiColor,aiAbbr)}<span class="chat-ai-name">${aiName}</span></div>
+          <span class="chat-model-badge">${aiSub}</span>
+        </div>
+        <div class="chat-body">
+          <div id="f2wBubble" style="opacity:0;transform:translateY(8px);">
+            <div class="msg-user">${prompt}</div>
+          </div>
+          <div id="f2wTyping" style="opacity:0;">
+            <div class="typing-dots"><span></span><span></span><span></span></div>
+          </div>
+          <div id="f2wMCPLayer" style="opacity:0;">
+            <div class="mcp-layer-chat">
+              <div class="mcp-path-chat" id="f2wFlowTag">
+                <span class="mcp-node-chat">${aiName}</span><span class="mcp-arrow-chat">→</span><span class="mcp-node-chat wk">Workato MCP</span><span class="mcp-arrow-chat">→</span><span class="mcp-node-chat wk">tool calls</span>
+              </div>
+              <div id="f2wToolWrap"></div>
+            </div>
+          </div>
+          <div id="f2wResponse" style="opacity:0;">
+            <div class="msg-ai-chat">${getWinResponse(useKeys)}</div>
+          </div>
+        </div>
+        <div class="chat-input-bar"><span class="chat-input-text">Reply to ${aiName}...</span><div class="chat-send-btn"><svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 8L8 5L2 2V4.5L6 5L2 5.5V8Z" fill="#fff"/></svg></div></div>
+      </div>
+      <div class="result-card result-good">
+        <div class="res-icon good">✓</div>
+        <div>
+          <div class="res-title">One governed identity per AI client.</div>
+          <div class="res-desc">Same prompt. Same systems. One verified identity calling all of them. Scoped, observable, traceable, revocable. Your security and compliance teams get audit-ready infrastructure on day one — not after a production incident.</div>
+        </div>
+      </div>
+    </div>`;
+}
+
+
+// ── FLOW 2 CHAT ANIMATION ENGINE ─────────────────────────────────────────────
+const f2Timers=[];
+let f2AnimMode='generic';
+let f2WarnHtmlStore=[];
+let f2WinHtmlStore=[];
+
+function clearF2Anim(){
+  f2Timers.forEach(t=>clearTimeout(t));
+  f2Timers.length=0;
+}
+
+function startF2Anim(mode, warnHtml, winHtml){
+  clearF2Anim();
+  if(warnHtml&&warnHtml.length) f2WarnHtmlStore=warnHtml;
+  if(winHtml&&winHtml.length) f2WinHtmlStore=winHtml;
+  f2AnimMode=mode;
+  runF2Loop();
+}
+
+function f2set(id, props){
+  const el=document.getElementById(id); if(!el)return;
+  Object.assign(el.style, props);
+}
+
+function runF2Loop(){
+  const isGeneric = f2AnimMode==='generic';
+  const bId  = isGeneric?'f2Bubble':'f2wBubble';
+  const tId  = isGeneric?'f2Typing':'f2wTyping';
+  const fId  = isGeneric?'f2MCPLayer':'f2wMCPLayer';
+  const wId  = isGeneric?'f2ToolWrap':'f2wToolWrap';
+  const rId  = isGeneric?'f2Response':'f2wResponse';
+
+  const bubble  = document.getElementById(bId);
+  const toolWrap= document.getElementById(wId);
+  if(!bubble) return;
+
+  // Reset
+  [bId,tId,fId,rId].forEach(id=>f2set(id,{transition:'none',opacity:'0'}));
+  f2set(bId,{transition:'none',opacity:'0',transform:'translateY(8px)'});
+  if(toolWrap) toolWrap.innerHTML='';
+
+  function at(delay,fn){ const t=setTimeout(fn,delay); f2Timers.push(t); }
+
+  // Step 1 — prompt
+  at(400,()=>f2set(bId,{transition:'opacity .4s ease,transform .4s ease',opacity:'1',transform:'none'}));
+
+  // Step 2 — typing
+  at(1200,()=>f2set(tId,{transition:'opacity .35s ease',opacity:'1'}));
+
+  // Step 3 — flow tag, typing out
+  at(2200,()=>f2set(tId,{transition:'opacity .25s ease',opacity:'0'}));
+  at(2400,()=>f2set(fId,{transition:'opacity .35s ease',opacity:'1'}));
+
+  // Step 4 — rows slide in one by one
+  const rows = isGeneric ? f2WarnHtmlStore : f2WinHtmlStore;
+  rows.forEach((html,i)=>{
+    at(2800+i*380,()=>{
+      if(!toolWrap)return;
+      const tmp=document.createElement('div'); tmp.innerHTML=html;
+      const row=tmp.firstChild;
+      row.style.cssText='opacity:0;transform:translateX(-6px);';
+      toolWrap.appendChild(row);
+      requestAnimationFrame(()=>requestAnimationFrame(()=>{
+        row.style.transition='opacity .35s ease,transform .35s ease';
+        row.style.opacity='1'; row.style.transform='none';
+      }));
+    });
+  });
+
+  const resDelay = 2800 + rows.length*380 + 400;
+
+  // Step 5 — response
+  at(resDelay,()=>f2set(rId,{transition:'opacity .6s ease',opacity:'1'}));
+
+  // Step 6 — Workato loops, generic holds
+  if(!isGeneric){
+    at(resDelay+5000,()=>{
+      [bId,tId,fId,rId].forEach(id=>f2set(id,{transition:'opacity .4s ease',opacity:'0'}));
+      if(toolWrap) setTimeout(()=>{toolWrap.innerHTML='';},500);
+      const t=setTimeout(runF2Loop,900); f2Timers.push(t);
+    });
+  }
+}
+
+function showWorkato(){
+  workatoSeen=true;
+  clearF2Anim();
+  document.getElementById('viewGeneric').style.display='none';
+  document.getElementById('viewWorkato').style.display='block';
+  document.getElementById('cb2').style.opacity='1';
+  document.getElementById('nextBtn').disabled=false;
+  const useKeys2=[...selSys].slice(0,4);if(useKeys2.length<2)useKeys2.push('Salesforce','Slack');
+  const _winHtml2=useKeys2.map(sys=>{const slug=sys.toLowerCase().replace(/[\s\/]/g,'_');const suffix=WIN_SUFFIX[sys]||'search(owner=me, scoped=true)';return`<div class="tc-good" style="opacity:0;transform:translateX(-6px);"><div class="tc-good-dot"></div><span class="tc-good-text">${slug}_by_workato.${suffix}</span><span class="tc-good-ok">✓ ok</span></div>`;});
+  setTimeout(()=>startF2Anim('workato',[],_winHtml2),150);
+}
+
+function buildScreen4(){
+  document.getElementById('closingBadges').innerHTML=[...selSys].map(s=>`<div class="srv-sum-badge">${s}</div>`).join('');
+}
+
+function showScreen(){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById('s'+cur).classList.add('active');
+  buildStepBar();updateProg();
+  document.getElementById('backBtn').style.visibility=cur===1?'hidden':'visible';
+  document.getElementById('nextBtn').textContent=cur===TOTAL?'Start over':'Next →';
+  document.getElementById('nextBtn').disabled=cur===3&&!workatoSeen;
+  document.getElementById('ftrMid').textContent=`0${cur} · ${STEP_LABELS[cur-1]}`;
+  clearF2Anim();if(cur===2)buildScreen2();
+  if(cur===3){
+    buildScreen3();
+    document.getElementById('viewWorkato').style.display='none';
+    document.getElementById('viewGeneric').style.display='block';
+    // Build warn rows and start animation
+    const _useKeys=[...selSys].slice(0,4);if(_useKeys.length<2){_useKeys.push('Salesforce','Slack');}
+    const _warnHtml=FAIL_REASONS.map((reason,i)=>{const sys=_useKeys[i%_useKeys.length];const slug=sys.toLowerCase().replace(/[\s\/]/g,'_');const actions=SYS_ACTIONS[sys]||['list_records','get_data','search_items'];const action=actions[i%actions.length];return`<div class="tc-warn" style="opacity:0;transform:translateX(-6px);"><span class="tc-warn-icon">⚠️</span><span><span class="tc-warn-fn">${slug}_mcp.${action}()</span><span class="tc-warn-reason"> — ${reason}</span></span></div>`;});
+    const _winHtml=_useKeys.map(sys=>{const slug=sys.toLowerCase().replace(/[\s\/]/g,'_');const suffix=WIN_SUFFIX[sys]||'search(owner=me, scoped=true)';return`<div class="tc-good" style="opacity:0;transform:translateX(-6px);"><div class="tc-good-dot"></div><span class="tc-good-text">${slug}_by_workato.${suffix}</span><span class="tc-good-ok">✓ ok</span></div>`;});
+    setTimeout(()=>startF2Anim('generic',_warnHtml,_winHtml),200);
+  }
+  if(cur===4)buildScreen4();
+  window.scrollTo(0,0);
+}
+
+function next(){
+  if(cur===TOTAL){cur=1;workatoSeen=false;selAI={name:'',abbr:'',iconBg:'',iconColor:'',sub:''};selSys=new Set();document.querySelectorAll('.ai-card,.sys-chip').forEach(e=>e.classList.remove('sel'));updateSelStatus();showScreen();return;}
+  if(cur===1){if(!selAI.name||selSys.size<2){document.getElementById('hint1').style.display='block';return;}document.getElementById('hint1').style.display='none';}
+  if(cur===3&&!workatoSeen){document.getElementById('nextBtn').disabled=true;return;}
+  cur++;showScreen();
+}
+function prev(){if(cur>1){cur--;showScreen();}}
+
+buildStepBar();updateProg();
+</script>
+</body>
+</html>
